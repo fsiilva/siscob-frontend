@@ -1,5 +1,6 @@
 import { AlertCircle, CalendarDays, Clock3, ShieldAlert } from "lucide-react";
 
+import { AgingChart } from "@/components/charts/AgingChart";
 import type {
   CollectionSummary,
   ExecutiveAlerts,
@@ -18,15 +19,6 @@ const currencyFormatter = new Intl.NumberFormat("pt-BR", {
 });
 
 const numberFormatter = new Intl.NumberFormat("pt-BR");
-
-const agingRanges: Array<keyof PortfolioAging> = [
-  "0-30",
-  "31-60",
-  "61-90",
-  "91-180",
-  "181-365",
-  "365+",
-];
 
 export function ExecutiveGrid({
   aging,
@@ -80,21 +72,7 @@ export function ExecutiveGrid({
           </div>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {agingRanges.map((range) => (
-            <article key={range} className="rounded-xl bg-slate-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                {range} dias
-              </p>
-              <p className="mt-2 text-lg font-bold text-slate-950">
-                {currencyFormatter.format(aging[range].amount)}
-              </p>
-              <p className="mt-1 text-sm text-slate-500">
-                {numberFormatter.format(aging[range].count)} títulos
-              </p>
-            </article>
-          ))}
-        </div>
+        <AgingChart portfolioAging={aging} />
       </section>
 
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm xl:col-span-2">
