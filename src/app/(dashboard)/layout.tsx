@@ -1,9 +1,9 @@
-import { MainLayout } from "@/components/layout/main-layout";
+import { ApplicationShell } from "@/components/layout/application-shell";
 
 export default function DashboardLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <MainLayout>{children}</MainLayout>;
+  return <ApplicationShell>{children}</ApplicationShell>;
 }
