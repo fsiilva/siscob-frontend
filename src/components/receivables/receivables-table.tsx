@@ -1,4 +1,4 @@
-import { MoreHorizontal } from "lucide-react";
+import { Eye } from "lucide-react";
 
 import type { Receivable, ReceivableStatus } from "@/types/receivables";
 
@@ -26,7 +26,15 @@ function formatDate(value: string) {
   return Number.isNaN(date.getTime()) ? "—" : dateFormatter.format(date);
 }
 
-export function ReceivablesTable({ data }: { data: Receivable[] }) {
+interface ReceivablesTableProps {
+  data: Receivable[];
+  onViewDetails: (id: number, trigger: HTMLButtonElement) => void;
+}
+
+export function ReceivablesTable({
+  data,
+  onViewDetails,
+}: ReceivablesTableProps) {
   return (
     <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
       <div className="max-w-full overflow-x-auto">
@@ -69,8 +77,16 @@ export function ReceivablesTable({ data }: { data: Receivable[] }) {
                   </span>
                 </td>
                 <td className="px-5 py-4 text-center">
-                  <button aria-label={`Ações indisponíveis para o título ${receivable.document ?? receivable.id}`} className="cursor-not-allowed rounded-lg p-2 text-slate-400" disabled title="Ações disponíveis em breve" type="button">
-                    <MoreHorizontal aria-hidden="true" className="size-5" />
+                  <button
+                    aria-label={`Ver detalhes do título ${receivable.document ?? receivable.id}`}
+                    className="rounded-lg p-2 text-blue-700 transition hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
+                    onClick={(event) =>
+                      onViewDetails(receivable.id, event.currentTarget)
+                    }
+                    title="Ver detalhes"
+                    type="button"
+                  >
+                    <Eye aria-hidden="true" className="size-5" />
                   </button>
                 </td>
               </tr>

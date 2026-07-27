@@ -1,4 +1,5 @@
 import type {
+  Receivable,
   ReceivablesQuery,
   ReceivablesResponse,
 } from "@/types/receivables";
@@ -11,6 +12,12 @@ export async function getReceivables(
   const { data } = await api.get<ReceivablesResponse>("/receivables", {
     params: query,
   });
+
+  return data;
+}
+
+export async function getReceivableById(id: number): Promise<Receivable> {
+  const { data } = await api.get<Receivable>(`/receivables/${id}`);
 
   return data;
 }
