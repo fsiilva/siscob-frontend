@@ -13,6 +13,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 interface NavigationItem {
   label: string;
@@ -22,7 +23,7 @@ interface NavigationItem {
 
 const navigationItems: NavigationItem[] = [
   { label: "Dashboard", icon: LayoutDashboard, href: "/" },
-  { label: "Carteira", icon: BriefcaseBusiness },
+  { label: "Carteira", icon: BriefcaseBusiness, href: "/receivables" },
   { label: "Clientes", icon: Users },
   { label: "Cobranças", icon: CircleDollarSign },
   { label: "Analytics", icon: BarChart3 },
@@ -37,9 +38,12 @@ interface AppSidebarProps {
 }
 
 function Navigation({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?: () => void }) {
+  const pathname = usePathname();
+
   return (
     <nav aria-label="Navegação principal" className="flex-1 space-y-1 px-3 py-6">
       {navigationItems.map(({ label, icon: Icon, href }) => {
+        const active = href === "/" ? pathname === href : pathname.startsWith(href ?? "#");
         const content = (
           <>
             <Icon aria-hidden="true" className="size-5 shrink-0" />
@@ -47,14 +51,16 @@ function Navigation({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?
           </>
         );
         const className = `flex min-h-11 w-full items-center gap-3 rounded-lg px-3 text-sm font-medium transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ${
-          href
+          active
             ? "bg-blue-700 text-white shadow-sm hover:bg-blue-600"
+            : href
+              ? "text-slate-300 hover:bg-slate-800 hover:text-white"
             : "cursor-not-allowed text-slate-400"
         } ${collapsed ? "justify-center" : ""}`;
 
         return href ? (
           <Link
-            aria-current="page"
+            aria-current={active ? "page" : undefined}
             className={className}
             href={href}
             key={label}
