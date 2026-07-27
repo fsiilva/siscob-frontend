@@ -1,4 +1,14 @@
-import axios from "axios";
+import axios, {
+  AxiosHeaders,
+  type InternalAxiosRequestConfig,
+} from "axios";
+
+import {
+  clearAuthTokens,
+  getAuthTokens,
+  saveAuthTokens,
+} from "@/lib/auth-storage";
+import type { LoginResponse } from "@/types/auth";
 
 const baseURL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -19,6 +29,15 @@ export class ApiRequestError extends Error {
     this.url = url;
   }
 }
+
+interface RetryableRequestConfig extends InternalAxiosRequestConfig {
+  _retry?: boolean;
+}
+
+type SessionExpiredHandler = () => void;
+
+let refreshPromise: Promise<string> | null = null;
+let sessionExpiredHandler: SessionExpiredHandler | null = null;
 
 function getResponseMessage(data: unknown, fallback: string) {
   if (typeof data === "object" && data !== null && "message" in data) {
@@ -47,6 +66,92 @@ export const api = axios.create({
   headers: {
     Accept: "application/json",
   },
+});
+
+export const refreshApi = axios.create({
+  baseURL,
+  timeout: 15_000,
+  headers: {
+    Accept: "application/json",
+  },
+});
+
+export function setAuthorization(accessToken: string) {
+  api.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+}
+
+export function clearAuthorization() {
+  delete api.defaults.headers.common.Authorization;
+}
+
+export function clearAuthSession() {
+  clearAuthTokens();
+  clearAuthorization();
+}
+
+export function setSessionExpiredHandler(
+  handler: SessionExpiredHandler | null,
+) {
+  sessionExpiredHandler = handler;
+}
+
+function expireSession() {
+  clearAuthSession();
+  sessionExpiredHandler?.();
+}
+
+function isRefreshRequest(config: RetryableRequestConfig) {
+  return config.url?.split("?")[0].endsWith("/auth/refresh") ?? false;
+}
+
+function refreshAccessToken() {
+  if (refreshPromise) return refreshPromise;
+
+  const tokens = getAuthTokens();
+
+  if (!tokens) {
+    expireSession();
+    return Promise.reject(new Error("Sessão expirada"));
+  }
+
+  refreshPromise = refreshApi
+    .post<LoginResponse>("/auth/refresh", {
+      refreshToken: tokens.refreshToken,
+    })
+    .then(({ data }) => {
+      saveAuthTokens(data);
+      setAuthorization(data.accessToken);
+
+      return data.accessToken;
+    })
+    .catch((error: unknown) => {
+      expireSession();
+      throw error;
+    })
+    .finally(() => {
+      refreshPromise = null;
+    });
+
+  return refreshPromise;
+}
+
+api.interceptors.response.use(undefined, async (error: unknown) => {
+  if (!axios.isAxiosError(error) || error.response?.status !== 401) {
+    return Promise.reject(error);
+  }
+
+  const config = error.config as RetryableRequestConfig | undefined;
+
+  if (!config || config._retry || isRefreshRequest(config)) {
+    return Promise.reject(error);
+  }
+
+  config._retry = true;
+  const accessToken = await refreshAccessToken();
+  config.headers = AxiosHeaders.from(config.headers);
+  config.headers.set("Authorization", `Bearer ${accessToken}`);
+
+  return api(config);
 });
 
 api.interceptors.response.use(

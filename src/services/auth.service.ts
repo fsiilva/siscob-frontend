@@ -6,14 +6,6 @@ import type {
 
 import { api } from "./api";
 
-export function setAuthorization(accessToken: string) {
-  api.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
-}
-
-export function clearAuthorization() {
-  delete api.defaults.headers.common.Authorization;
-}
-
 export async function login(
   credentials: LoginCredentials,
 ): Promise<LoginResponse> {

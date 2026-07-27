@@ -11,17 +11,19 @@ import {
 } from "react";
 
 import {
-  clearAuthTokens,
   getAuthTokens,
   saveAuthTokens,
 } from "@/lib/auth-storage";
 import {
-  clearAuthorization,
   getCurrentUser,
   login as requestLogin,
   logout as requestLogout,
-  setAuthorization,
 } from "@/services/auth.service";
+import {
+  clearAuthSession,
+  setAuthorization,
+  setSessionExpiredHandler,
+} from "@/services/api";
 import type {
   AuthContextValue,
   AuthUser,
@@ -36,18 +38,23 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const [isLoading, setIsLoading] = useState(true);
 
   const clearSession = useCallback(() => {
-    clearAuthTokens();
-    clearAuthorization();
+    clearAuthSession();
     setUser(null);
   }, []);
 
   useEffect(() => {
+    setSessionExpiredHandler(() => {
+      setUser(null);
+      setIsLoading(false);
+      router.replace("/login");
+    });
+
     const tokens = getAuthTokens();
 
     if (!tokens) {
       clearSession();
       setIsLoading(false);
-      return;
+      return () => setSessionExpiredHandler(null);
     }
 
     setAuthorization(tokens.accessToken);
@@ -56,7 +63,9 @@ export function AuthProvider({ children }: PropsWithChildren) {
       .then(setUser)
       .catch(clearSession)
       .finally(() => setIsLoading(false));
-  }, [clearSession]);
+
+    return () => setSessionExpiredHandler(null);
+  }, [clearSession, router]);
 
   const login = useCallback(
     async (credentials: LoginCredentials) => {
