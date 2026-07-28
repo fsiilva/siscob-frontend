@@ -1,12 +1,8 @@
-import { CalendarClock, ListChecks, PhoneCall, UsersRound } from "lucide-react";
+import { ListChecks } from "lucide-react";
 
-import { Card, EmptyState, PageHeader, StatCard } from "@/components/ui";
+import { PageHeader } from "@/components/ui";
 
-const operationKpis = [
-  { label: "Clientes prioritários", value: 12, icon: UsersRound },
-  { label: "Promessas vencendo hoje", value: 4, icon: CalendarClock },
-  { label: "Retornos agendados", value: 7, icon: PhoneCall },
-] as const;
+import { WorkQueue } from "./work-queue";
 
 export function OperationPage() {
   return (
@@ -18,20 +14,7 @@ export function OperationPage() {
         title="Minha Operação"
       />
 
-      <section aria-label="Indicadores da operação">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {operationKpis.map(({ icon, label, value }) => (
-            <StatCard icon={icon} key={label} label={label} value={value} />
-          ))}
-        </div>
-      </section>
-
-      <Card>
-        <EmptyState
-          className="border-0"
-          title="Sua fila de cobrança será exibida aqui nas próximas sprints."
-        />
-      </Card>
+      <WorkQueue />
     </div>
   );
 }
