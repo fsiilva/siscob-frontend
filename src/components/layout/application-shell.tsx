@@ -19,9 +19,11 @@ export function ApplicationShell({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pageTitle =
     title ??
-    (pathname.startsWith("/receivables")
-      ? "Carteira de Recebíveis"
-      : "Dashboard Executivo");
+    (pathname.startsWith("/customers")
+      ? "Customer 360"
+      : pathname.startsWith("/receivables")
+        ? "Carteira de Recebíveis"
+        : "Dashboard Executivo");
 
   return (
     <div className="flex min-h-screen w-full overflow-x-hidden bg-slate-100 text-slate-950">
