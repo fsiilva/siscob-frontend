@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Flame } from "lucide-react";
 
 import { Badge, Button, Card, CardContent, EmptyState, LoadingState, Skeleton } from "@/components/ui";
 import type { BadgeVariant } from "@/components/ui";
@@ -10,6 +10,7 @@ import type { OperationQueueItem, OperationQueuePriority } from "@/types/operati
 
 interface WorkQueueCustomerCardProps {
   item: OperationQueueItem;
+  featured?: boolean;
   onOpenCustomer: () => void;
 }
 
@@ -30,10 +31,45 @@ const priorityLabels: Record<OperationQueuePriority, string> = {
   LOW: "baixa",
 };
 
-export function WorkQueueCustomerCard({ item, onOpenCustomer }: WorkQueueCustomerCardProps) {
+function formatDelay(daysOverdue: number) {
+  if (daysOverdue > 365) return "365+ dias";
+  if (daysOverdue <= 0) return "Sem atraso";
+  return `${daysOverdue} dias`;
+}
+
+function getPriorityReasons(item: OperationQueueItem) {
+  const delayReason = item.daysOverdue >= 90
+    ? "Atraso de 90 dias ou mais"
+    : item.daysOverdue >= 60
+      ? "Atraso entre 60 e 89 dias"
+      : item.daysOverdue >= 30
+        ? "Atraso entre 30 e 59 dias"
+        : item.daysOverdue > 0
+          ? "Atraso inferior a 30 dias"
+          : "Sem atraso";
+  const balanceReason = item.outstandingAmount >= 50_000
+    ? "Valor em aberto elevado"
+    : item.outstandingAmount >= 10_000
+      ? "Valor em aberto relevante"
+      : item.outstandingAmount >= 1_000
+        ? "Valor em aberto moderado"
+        : "Valor em aberto reduzido";
+
+  return [delayReason, balanceReason, `Score ${priorityLabels[item.priority]}`];
+}
+
+export function WorkQueueCustomerCard({ item, featured = false, onOpenCustomer }: WorkQueueCustomerCardProps) {
+  const priorityReasons = getPriorityReasons(item);
+
   return (
-    <Card>
-      <CardContent className="flex min-w-0 flex-col gap-5">
+    <Card className={featured ? "border-amber-300 bg-amber-50/40 ring-1 ring-amber-200" : undefined}>
+      <CardContent className={`flex min-w-0 flex-col ${featured ? "gap-5" : "gap-3 p-4"}`}>
+        {featured ? (
+          <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-amber-800">
+            <Flame aria-hidden="true" className="size-4 fill-current" />
+            Cobre agora
+          </p>
+        ) : null}
         <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
             <p className="break-words text-sm font-medium text-slate-500">{item.companyName}</p>
@@ -54,13 +90,24 @@ export function WorkQueueCustomerCard({ item, onOpenCustomer }: WorkQueueCustome
           </div>
           <div>
             <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">Maior atraso</dt>
-            <dd className="mt-1 text-sm font-semibold text-slate-950">{item.daysOverdue} dias</dd>
+            <dd className="mt-1 text-sm font-semibold text-slate-950">{formatDelay(item.daysOverdue)}</dd>
           </div>
         </dl>
 
-        <Button className="w-full sm:w-fit sm:self-end" onClick={onOpenCustomer}>
-          Abrir Customer 360
-        </Button>
+        <ul aria-label="Motivos da prioridade" className="flex flex-wrap gap-2">
+          {priorityReasons.map((reason) => (
+            <li className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600" key={reason}>
+              {reason}
+            </li>
+          ))}
+        </ul>
+
+        <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+          <Button className="w-full sm:w-auto">Registrar Cobrança</Button>
+          <Button className="w-full sm:w-auto" onClick={onOpenCustomer} variant="secondary">
+            Abrir Customer 360
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );
@@ -96,8 +143,9 @@ export function WorkQueue() {
         />
       ) : null}
 
-      {queueQuery.data?.map((item) => (
+      {queueQuery.data?.map((item, index) => (
         <WorkQueueCustomerCard
+          featured={index === 0}
           item={item}
           key={item.id}
           onOpenCustomer={() => router.push(`/customers/${item.customerId}`)}
