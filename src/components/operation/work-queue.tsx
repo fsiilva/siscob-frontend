@@ -36,26 +36,25 @@ export function WorkQueueCustomerCard({ item, onOpenCustomer }: WorkQueueCustome
       <CardContent className="flex min-w-0 flex-col gap-5">
         <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
-            <p className="break-words text-sm font-medium text-slate-500">{item.company}</p>
-            <h3 className="mt-1 break-words text-lg font-semibold text-slate-950">{item.customer}</h3>
+            <p className="break-words text-sm font-medium text-slate-500">{item.companyName}</p>
+            <h3 className="mt-1 break-words text-lg font-semibold text-slate-950">{item.customerName}</h3>
           </div>
-          <Badge className="w-fit shrink-0" variant={priorityVariants[item.priority]}>
-            Prioridade {priorityLabels[item.priority]}
-          </Badge>
+          <div className="flex shrink-0 items-center gap-2">
+            <span className="text-xs font-medium text-slate-500">Score {item.priorityScore}</span>
+            <Badge variant={priorityVariants[item.priority]}>
+              Prioridade {priorityLabels[item.priority]}
+            </Badge>
+          </div>
         </div>
 
-        <dl className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">Valor em aberto</dt>
-            <dd className="mt-1 text-sm font-semibold text-slate-950">{currencyFormatter.format(item.openAmount)}</dd>
+            <dd className="mt-1 text-sm font-semibold text-slate-950">{currencyFormatter.format(item.outstandingAmount)}</dd>
           </div>
           <div>
             <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">Maior atraso</dt>
-            <dd className="mt-1 text-sm font-semibold text-slate-950">{item.greatestDelayDays} dias</dd>
-          </div>
-          <div>
-            <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">Último contato</dt>
-            <dd className="mt-1 text-sm font-semibold text-slate-950">{item.lastContact ?? "Não disponível"}</dd>
+            <dd className="mt-1 text-sm font-semibold text-slate-950">{item.daysOverdue} dias</dd>
           </div>
         </dl>
 

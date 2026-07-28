@@ -3,10 +3,10 @@ export type OperationQueuePriority = "HIGH" | "MEDIUM" | "LOW";
 export interface OperationQueueItem {
   id: number;
   customerId: number;
-  company: string;
-  customer: string;
-  openAmount: number;
-  greatestDelayDays: number;
+  companyName: string;
+  customerName: string;
+  outstandingAmount: number;
+  daysOverdue: number;
+  priorityScore: number;
   priority: OperationQueuePriority;
-  lastContact: string | null;
 }
