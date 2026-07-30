@@ -1,8 +1,9 @@
 import { ListChecks } from "lucide-react";
 
+import { NextActionsSection } from "@/components/next-actions";
 import { PageHeader } from "@/components/ui";
 
-import { WorkQueue } from "./work-queue";
+import { OperationList } from "./operation-list";
 
 export function OperationPage() {
   return (
@@ -14,7 +15,8 @@ export function OperationPage() {
         title="Minha Operação"
       />
 
-      <WorkQueue />
+      <OperationList />
+      <NextActionsSection />
     </div>
   );
 }

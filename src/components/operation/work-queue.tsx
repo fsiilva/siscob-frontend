@@ -1,17 +1,22 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { AlertTriangle, Flame } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
+import { InteractionDrawer, type InteractionFlow } from "@/components/interactions";
+import { buildInteractionPayload } from "@/components/interactions/interaction-api-mapper";
 import { Badge, Button, Card, CardContent, EmptyState, LoadingState, Skeleton } from "@/components/ui";
 import type { BadgeVariant } from "@/components/ui";
 import { useOperationQueue } from "@/hooks/useOperationQueue";
+import { useCreateInteraction } from "@/hooks/useCreateInteraction";
 import type { OperationQueueItem, OperationQueuePriority } from "@/types/operation";
 
 interface WorkQueueCustomerCardProps {
   item: OperationQueueItem;
   featured?: boolean;
   onOpenCustomer: () => void;
+  onRegisterInteraction: () => void;
 }
 
 const currencyFormatter = new Intl.NumberFormat("pt-BR", {
@@ -58,7 +63,12 @@ function getPriorityReasons(item: OperationQueueItem) {
   return [delayReason, balanceReason, `Score ${priorityLabels[item.priority]}`];
 }
 
-export function WorkQueueCustomerCard({ item, featured = false, onOpenCustomer }: WorkQueueCustomerCardProps) {
+export function WorkQueueCustomerCard({
+  item,
+  featured = false,
+  onOpenCustomer,
+  onRegisterInteraction,
+}: WorkQueueCustomerCardProps) {
   const priorityReasons = getPriorityReasons(item);
 
   return (
@@ -103,7 +113,7 @@ export function WorkQueueCustomerCard({ item, featured = false, onOpenCustomer }
         </ul>
 
         <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
-          <Button className="w-full sm:w-auto">Registrar Cobrança</Button>
+          <Button className="w-full sm:w-auto" onClick={onRegisterInteraction}>Registrar Cobrança</Button>
           <Button className="w-full sm:w-auto" onClick={onOpenCustomer} variant="secondary">
             Abrir Customer 360
           </Button>
@@ -116,10 +126,28 @@ export function WorkQueueCustomerCard({ item, featured = false, onOpenCustomer }
 export function WorkQueue() {
   const router = useRouter();
   const queueQuery = useOperationQueue();
+  const [selectedItem, setSelectedItem] = useState<OperationQueueItem | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const createInteractionMutation = useCreateInteraction(selectedItem?.customerId ?? 0);
+
+  async function saveInteraction(interaction: InteractionFlow) {
+    if (!selectedItem) return;
+    await createInteractionMutation.mutateAsync(
+      buildInteractionPayload(interaction, String(selectedItem.id)),
+    );
+    setSuccessMessage("Atendimento registrado com sucesso.");
+    setSelectedItem(null);
+  }
 
   return (
     <section aria-labelledby="work-queue-title" className="space-y-4">
       <h2 className="text-sm font-semibold text-slate-950" id="work-queue-title">Fila de cobrança</h2>
+
+      {successMessage ? (
+        <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800" role="status">
+          {successMessage}
+        </p>
+      ) : null}
 
       {queueQuery.isLoading ? (
         <LoadingState className="space-y-4" label="Carregando fila de cobrança">
@@ -149,8 +177,22 @@ export function WorkQueue() {
           item={item}
           key={item.id}
           onOpenCustomer={() => router.push(`/customers/${item.customerId}`)}
+          onRegisterInteraction={() => {
+            setSuccessMessage(null);
+            setSelectedItem(item);
+          }}
         />
       ))}
+
+      {selectedItem ? (
+        <InteractionDrawer
+          customerId={selectedItem.customerId}
+          customerName={selectedItem.customerName}
+          onClose={() => setSelectedItem(null)}
+          onSave={saveInteraction}
+          open
+        />
+      ) : null}
     </section>
   );
 }

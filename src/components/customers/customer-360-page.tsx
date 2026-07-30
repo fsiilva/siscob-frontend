@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 
 import { Badge, Button, Card, CardContent, EmptyState, LoadingState, PageHeader, Section, Skeleton, StatCard } from "@/components/ui";
+import { CustomerNextAction } from "@/components/next-actions";
+import { TimelineList } from "@/components/timeline";
 import { useCustomer } from "@/hooks/useCustomer";
 import { useCustomerSummary } from "@/hooks/useCustomerSummary";
 import { ApiRequestError } from "@/services/api";
@@ -108,7 +110,7 @@ function CustomerKpis({ summary }: { summary: CustomerReceivablesSummary }) {
   );
 }
 
-const futureModules = ["Recebíveis", "Contratos", "Timeline", "CRM", "IA", "Observações"];
+const futureModules = ["Recebíveis", "Contratos", "CRM", "IA", "Observações"];
 
 function FutureModules() {
   return (
@@ -173,6 +175,14 @@ export function Customer360Page({ customerId }: { customerId: number }) {
         {summaryQuery.isError ? <ErrorState onRetry={() => void summaryQuery.refetch()} title="Não foi possível carregar os indicadores" /> : null}
         {summaryQuery.data ? <CustomerKpis summary={summaryQuery.data.receivables} /> : null}
       </Section>
+
+      {customerQuery.data ? <CustomerNextAction customerId={customerId} /> : null}
+
+      {customerQuery.data ? (
+        <Section className="space-y-4" title="Timeline">
+          <TimelineList customerId={customerId} />
+        </Section>
+      ) : null}
 
       {customerQuery.data ? <FutureModules /> : null}
     </div>
