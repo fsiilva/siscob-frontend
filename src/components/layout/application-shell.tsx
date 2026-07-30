@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, type PropsWithChildren } from "react";
-import { usePathname } from "next/navigation";
+import { useEffect, useState, type PropsWithChildren } from "react";
+import { usePathname, useRouter } from "next/navigation";
+
+import { useAuth } from "@/hooks/useAuth";
 
 import { AppHeader } from "./app-header";
 import { AppSidebar } from "./app-sidebar";
@@ -15,6 +17,8 @@ export function ApplicationShell({
   title,
 }: ApplicationShellProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, isLoading } = useAuth();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pageTitle =
@@ -23,7 +27,17 @@ export function ApplicationShell({
       ? "Customer 360"
       : pathname.startsWith("/receivables")
         ? "Carteira de Recebíveis"
+        : pathname.startsWith("/operations") || pathname.startsWith("/operation")
+          ? "Minha Operação"
         : "Dashboard Executivo");
+
+  useEffect(() => {
+    if (!isLoading && !user) router.replace("/login");
+  }, [isLoading, router, user]);
+
+  if (isLoading || !user) {
+    return <div aria-live="polite" className="flex min-h-screen items-center justify-center bg-slate-100 text-sm text-slate-600" role="status">Verificando autenticação...</div>;
+  }
 
   return (
     <div className="flex min-h-screen w-full overflow-x-hidden bg-slate-100 text-slate-950">

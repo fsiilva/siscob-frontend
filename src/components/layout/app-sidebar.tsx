@@ -24,6 +24,7 @@ interface NavigationItem {
 const navigationItems: NavigationItem[] = [
   { label: "Dashboard", icon: LayoutDashboard, href: "/" },
   { label: "Carteira", icon: BriefcaseBusiness, href: "/receivables" },
+  { label: "Minha Operação", icon: CircleDollarSign, href: "/operations" },
   { label: "Clientes", icon: Users },
   { label: "Cobranças", icon: CircleDollarSign },
   { label: "Analytics", icon: BarChart3 },
