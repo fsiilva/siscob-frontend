@@ -3,27 +3,31 @@ import { describe, expect, it } from "vitest";
 import { buildCompanyOptions } from "./build-company-options";
 
 const contextCompany = { id: 2, code: "BETA", name: "Beta" };
+const officialCompany = { id: "1", code: null, name: "Alfa", active: true };
 
 describe("buildCompanyOptions", () => {
-  it("usa empresas de receivables quando o contexto está vazio", () => {
-    expect(buildCompanyOptions([], [{ id: 1, name: "Alfa" }])).toEqual([
-      { id: 1, name: "Alfa" },
+  it("usa empresas oficiais quando o contexto está vazio e preserva code null", () => {
+    expect(buildCompanyOptions([], [officialCompany])).toEqual([
+      { id: "1", code: null, name: "Alfa" },
     ]);
   });
 
   it("mantém empresas vindas do contexto", () => {
     expect(buildCompanyOptions([contextCompany], [])).toEqual([
-      { id: 2, name: "Beta" },
+      { id: "2", code: "BETA", name: "Beta" },
     ]);
   });
 
-  it("deduplica por ID e ordena pelo nome", () => {
+  it("deduplica por ID, prioriza a API oficial e ordena pelo nome", () => {
     expect(buildCompanyOptions(
       [contextCompany],
-      [{ id: 2, name: "Beta atualizada" }, { id: 1, name: "Alfa" }],
+      [
+        { id: "2", code: null, name: "Beta atualizada", active: true },
+        officialCompany,
+      ],
     )).toEqual([
-      { id: 1, name: "Alfa" },
-      { id: 2, name: "Beta atualizada" },
+      { id: "1", code: null, name: "Alfa" },
+      { id: "2", code: null, name: "Beta atualizada" },
     ]);
   });
 });

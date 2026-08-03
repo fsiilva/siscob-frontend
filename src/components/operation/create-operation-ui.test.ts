@@ -22,11 +22,17 @@ describe("create Operation UI integration", () => {
 
   it("usa seletores reais para empresa, Customer e Receivable", () => {
     expect(drawer).toContain("useCustomers(customerSearch)");
-    expect(drawer).toContain("useReceivables");
+    expect(drawer).toContain("useCompanies({ active: true })");
+    expect(drawer.match(/useReceivables\(/g)).toHaveLength(1);
+    expect(drawer).toContain("canLoadReceivables");
+    expect(drawer).not.toContain("allReceivablesQuery");
+    expect(drawer).not.toContain("map((receivable) => receivable.company)");
     expect(drawer).toContain("changeCreateOperationCustomer");
     expect(drawer).toContain("Sem Receivable");
     expect(drawer).toContain("usePortfolios(values.companyId)");
     expect(drawer).toContain("buildCompanyOptions(");
+    expect(drawer).toContain("companiesQuery.refetch()");
+    expect(drawer).toContain("Nenhuma empresa disponível");
     expect(drawer).toContain("Selecione a carteira");
     expect(drawer).not.toContain("ID da carteira");
   });
