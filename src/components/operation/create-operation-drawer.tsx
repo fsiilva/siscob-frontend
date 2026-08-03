@@ -10,6 +10,7 @@ import { usePortfolios } from "@/hooks/usePortfolios";
 import { useReceivables } from "@/hooks/useReceivables";
 import type { OperationResponse } from "@/types/operations-api";
 
+import { buildCompanyOptions } from "../portfolios/build-company-options";
 import { buildCreateOperationRequest, changeCreateOperationCompany, changeCreateOperationCustomer, createOperationErrorMessage, initialCreateOperationValues, isCreateOperationValid, type CreateOperationValues } from "./create-operation-form";
 
 export function CreateOperationDrawer({ onClose, onCreated }: { onClose(): void; onCreated(operation: OperationResponse): void }) {
@@ -27,12 +28,13 @@ export function CreateOperationDrawer({ onClose, onCreated }: { onClose(): void;
     ...(selectedCustomer ? { search: selectedCustomer.name } : {}),
   });
   const mutation = useCreateOperation();
-  const companies = useMemo(() => {
-    const byId = new Map<number, { id: number; name: string }>();
-    for (const company of [...assignedCompanies, ...availableCompanies, ...(selectedCompany ? [selectedCompany] : [])]) byId.set(company.id, company);
-    for (const receivable of allReceivablesQuery.data?.data ?? []) byId.set(receivable.company.id, receivable.company);
-    return [...byId.values()].sort((left, right) => left.name.localeCompare(right.name, "pt-BR"));
-  }, [allReceivablesQuery.data, assignedCompanies, availableCompanies, selectedCompany]);
+  const companies = useMemo(
+    () => buildCompanyOptions(
+      [...assignedCompanies, ...availableCompanies, ...(selectedCompany ? [selectedCompany] : [])],
+      (allReceivablesQuery.data?.data ?? []).map((receivable) => receivable.company),
+    ),
+    [allReceivablesQuery.data, assignedCompanies, availableCompanies, selectedCompany],
+  );
   const receivables = (compatibleReceivablesQuery.data?.data ?? []).filter((receivable) => (
     String(receivable.customerId) === values.customerId && String(receivable.companyId) === values.companyId
   ));

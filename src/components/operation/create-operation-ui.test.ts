@@ -26,6 +26,7 @@ describe("create Operation UI integration", () => {
     expect(drawer).toContain("changeCreateOperationCustomer");
     expect(drawer).toContain("Sem Receivable");
     expect(drawer).toContain("usePortfolios(values.companyId)");
+    expect(drawer).toContain("buildCompanyOptions(");
     expect(drawer).toContain("Selecione a carteira");
     expect(drawer).not.toContain("ID da carteira");
   });
