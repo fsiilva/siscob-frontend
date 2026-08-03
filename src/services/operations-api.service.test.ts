@@ -2,7 +2,7 @@ import MockAdapter from "axios-mock-adapter";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { api } from "./api";
-import { createOperation, executeOperationCommand, getOperation, getOperations } from "./operations-api.service";
+import { createOperation, executeOperationCommand, getOperation, getOperationDetails, getOperations, getOperationTimeline } from "./operations-api.service";
 
 const operation = {
   id: "op-1", companyId: "company-1", portfolioId: "portfolio-1", customerId: "customer-1",
@@ -26,6 +26,18 @@ describe("operations-api.service", () => {
   it("busca o detalhe pelo endpoint real", async () => {
     mock.onGet("/operations/op-1").reply(200, operation);
     await expect(getOperation("op-1")).resolves.toEqual(operation);
+  });
+
+  it("busca e valida a timeline específica da Operation", async () => {
+    const response = { items: [{ id: "event-1", createdAt: "2026-08-01T12:00:00.000Z", type: "OperationCreated", actor: { id: "user-1", name: "João" }, title: "Operação criada", description: "Operação registrada", metadata: { operationId: "op-1" } }] };
+    mock.onGet("/operations/op-1/timeline").reply(200, response);
+    await expect(getOperationTimeline("op-1")).resolves.toEqual(response);
+  });
+
+  it("busca a composição completa da Operation", async () => {
+    const response = { operation: { ...operation, assignedOperator: null, completedReason: null, cancelledReason: null }, timeline: [], nextActions: [], interactions: [] };
+    mock.onGet("/operations/op-1/details").reply(200, response);
+    await expect(getOperationDetails("op-1")).resolves.toEqual(response);
   });
 
   it("cria pela API real com payload explícito e receivable opcional", async () => {

@@ -12,17 +12,22 @@ describe("Operation query orchestration", () => {
   it("mantém query keys estáveis e específicas", () => {
     expect(operationQueryKeys.list(listParams)).toEqual(["operations", "list", listParams]);
     expect(operationQueryKeys.detail("op-1")).toEqual(["operations", "detail", "op-1"]);
-    expect(operationQueryKeys.timeline("op-1")).toEqual(["operations", "detail", "op-1", "timeline"]);
+    expect(operationQueryKeys.details("op-1")).toEqual(["operations", "op-1", "details"]);
+    expect(operationQueryKeys.timeline("op-1")).toEqual(["operations", "op-1", "timeline"]);
   });
 
   it("atualiza detalhe e invalida lista e timeline após sucesso", async () => {
     const client = new QueryClient();
     client.setQueryData(operationQueryKeys.list(listParams), { items: [] });
     client.setQueryData(operationQueryKeys.timeline("op-1"), { pages: [] });
+    client.setQueryData(operationQueryKeys.details("op-1"), operation);
+    client.setQueryData(["dashboard", "overview"], {});
     await refreshOperationQueries(client, operation);
     expect(client.getQueryData(operationQueryKeys.detail("op-1"))).toBe(operation);
     expect(client.getQueryState(operationQueryKeys.list(listParams))?.isInvalidated).toBe(true);
     expect(client.getQueryState(operationQueryKeys.timeline("op-1"))?.isInvalidated).toBe(true);
+    expect(client.getQueryState(operationQueryKeys.details("op-1"))?.isInvalidated).toBe(true);
+    expect(client.getQueryState(["dashboard", "overview"])?.isInvalidated).toBe(true);
   });
 
   it("refaz detalhe, lista e timeline em conflito sem repetir comando", async () => {
@@ -30,10 +35,12 @@ describe("Operation query orchestration", () => {
     client.setQueryData(operationQueryKeys.detail("op-1"), operation);
     client.setQueryData(operationQueryKeys.list(listParams), { items: [] });
     client.setQueryData(operationQueryKeys.timeline("op-1"), { pages: [] });
+    client.setQueryData(operationQueryKeys.details("op-1"), operation);
     await refreshOperationAfterConflict(client, "op-1");
     expect(client.getQueryState(operationQueryKeys.detail("op-1"))?.isInvalidated).toBe(true);
     expect(client.getQueryState(operationQueryKeys.list(listParams))?.isInvalidated).toBe(true);
     expect(client.getQueryState(operationQueryKeys.timeline("op-1"))?.isInvalidated).toBe(true);
+    expect(client.getQueryState(operationQueryKeys.details("op-1"))?.isInvalidated).toBe(true);
   });
 
   it("insere o detalhe criado e invalida somente listas", async () => {

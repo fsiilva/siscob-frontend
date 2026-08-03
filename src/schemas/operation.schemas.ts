@@ -33,3 +33,41 @@ export const operationListParamsSchema = z.object({
   assignedOperatorId: z.string().uuid().optional(), customerId: z.string().trim().optional(), receivableId: z.string().trim().optional(),
   sortBy: z.enum(["createdAt", "updatedAt", "priority", "status"]), sortOrder: z.enum(["asc", "desc"]),
 });
+
+export const operationTimelineEventTypeSchema = z.enum([
+  "OperationCreated", "OperationAssigned", "OperationReleased", "OperationTransferred",
+  "OperationStarted", "OperationWaiting", "OperationBlocked", "OperationResumed",
+  "OperationCompleted", "OperationCancelled", "OperationReopened", "OperationPriorityChanged",
+]);
+
+export const operationTimelineResponseSchema = z.object({
+  items: z.array(z.object({
+    id: z.string(),
+    createdAt: z.string(),
+    type: operationTimelineEventTypeSchema,
+    actor: z.object({ id: z.string(), name: z.string() }).nullable(),
+    title: z.string(),
+    description: z.string(),
+    metadata: z.record(z.string(), z.unknown()),
+  })),
+});
+
+const operationDetailsNextActionSchema = z.object({
+  id: z.string(), status: z.string(), type: z.string(), title: z.string(),
+  description: z.string(), dueAt: z.string(), createdAt: z.string(),
+});
+
+const operationDetailsInteractionSchema = z.object({
+  id: z.string(), channel: z.string(), outcome: z.string(), notes: z.string(), createdAt: z.string(),
+});
+
+export const operationDetailsResponseSchema = z.object({
+  operation: operationResponseSchema.extend({
+    assignedOperator: z.object({ id: z.string(), name: z.string() }).nullable(),
+    completedReason: z.string().nullable(),
+    cancelledReason: z.string().nullable(),
+  }),
+  timeline: operationTimelineResponseSchema.shape.items,
+  nextActions: z.array(operationDetailsNextActionSchema),
+  interactions: z.array(operationDetailsInteractionSchema),
+});

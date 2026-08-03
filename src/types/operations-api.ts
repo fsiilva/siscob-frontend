@@ -58,5 +58,39 @@ export interface OperationListParams {
   sortOrder: OperationSortOrder;
 }
 
+export type OperationTimelineEventType =
+  | "OperationCreated" | "OperationAssigned" | "OperationReleased"
+  | "OperationTransferred" | "OperationStarted" | "OperationWaiting"
+  | "OperationBlocked" | "OperationResumed" | "OperationCompleted"
+  | "OperationCancelled" | "OperationReopened" | "OperationPriorityChanged";
+
+export interface OperationTimelineItem {
+  id: string;
+  createdAt: string;
+  type: OperationTimelineEventType;
+  actor: { id: string; name: string } | null;
+  title: string;
+  description: string;
+  metadata: Record<string, unknown>;
+}
+
+export interface OperationTimelineResponse { items: OperationTimelineItem[] }
+
+export interface OperationDetailsResponse {
+  operation: OperationResponse & {
+    assignedOperator: { id: string; name: string } | null;
+    completedReason: string | null;
+    cancelledReason: string | null;
+  };
+  timeline: OperationTimelineItem[];
+  nextActions: Array<{
+    id: string; status: string; type: string; title: string;
+    description: string; dueAt: string; createdAt: string;
+  }>;
+  interactions: Array<{
+    id: string; channel: string; outcome: string; notes: string; createdAt: string;
+  }>;
+}
+
 export type OperationCommand = "assign" | "release" | "transfer" | "start" | "wait" | "block" | "resume" | "complete" | "cancel" | "reopen" | "changePriority";
 export type OperationCommandPayload = Record<string, string | number | undefined> & { expectedVersion: number };

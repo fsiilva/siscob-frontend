@@ -1,9 +1,8 @@
 "use client";
 
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
 
-import { createOperation, executeOperationCommand, getOperation, getOperations } from "@/services/operations-api.service";
-import { getCustomerTimeline } from "@/services/timeline.service";
+import { createOperation, executeOperationCommand, getOperation, getOperationDetails, getOperations, getOperationTimeline } from "@/services/operations-api.service";
 import type { CreateOperationRequest, OperationCommand, OperationCommandPayload, OperationListParams, OperationResponse } from "@/types/operations-api";
 
 export const operationQueryKeys = {
@@ -11,7 +10,8 @@ export const operationQueryKeys = {
   lists: () => ["operations", "list"] as const,
   list: (params: OperationListParams) => ["operations", "list", params] as const,
   detail: (id: string) => ["operations", "detail", id] as const,
-  timeline: (id: string) => ["operations", "detail", id, "timeline"] as const,
+  details: (id: string) => ["operations", id, "details"] as const,
+  timeline: (id: string) => ["operations", id, "timeline"] as const,
 };
 
 export function useOperations(params: OperationListParams) {
@@ -24,16 +24,20 @@ export function useOperation(id: string | null) {
   });
 }
 
-export function useOperationTimeline(operation: OperationResponse | undefined) {
-  return useInfiniteQuery({
-    queryKey: operationQueryKeys.timeline(operation?.id ?? ""),
-    queryFn: ({ pageParam }) => getCustomerTimeline(operation?.customerId ?? "", {
-      limit: 20,
-      ...(pageParam ? { cursor: pageParam } : {}),
-    }),
-    initialPageParam: undefined as string | undefined,
-    getNextPageParam: (page) => page.hasMore ? (page.nextCursor ?? undefined) : undefined,
-    enabled: Boolean(operation),
+export function useOperationDetails(id: string | null) {
+  return useQuery({
+    queryKey: operationQueryKeys.details(id ?? ""),
+    queryFn: () => getOperationDetails(id as string),
+    enabled: Boolean(id),
+    retry: 1,
+  });
+}
+
+export function useOperationTimeline(operationId: string | undefined, enabled = true) {
+  return useQuery({
+    queryKey: operationQueryKeys.timeline(operationId ?? ""),
+    queryFn: () => getOperationTimeline(operationId as string),
+    enabled: Boolean(operationId) && enabled,
     retry: 1,
   });
 }
@@ -42,15 +46,19 @@ export async function refreshOperationQueries(queryClient: QueryClient, operatio
   queryClient.setQueryData(operationQueryKeys.detail(operation.id), operation);
   await Promise.all([
     queryClient.invalidateQueries({ queryKey: operationQueryKeys.lists() }),
+    queryClient.invalidateQueries({ exact: true, queryKey: operationQueryKeys.details(operation.id) }),
     queryClient.invalidateQueries({ exact: true, queryKey: operationQueryKeys.timeline(operation.id) }),
+    queryClient.invalidateQueries({ queryKey: ["dashboard"] }),
   ]);
 }
 
 export async function refreshOperationAfterConflict(queryClient: QueryClient, operationId: string) {
   await Promise.all([
     queryClient.invalidateQueries({ exact: true, queryKey: operationQueryKeys.detail(operationId) }),
+    queryClient.invalidateQueries({ exact: true, queryKey: operationQueryKeys.details(operationId) }),
     queryClient.invalidateQueries({ queryKey: operationQueryKeys.lists() }),
     queryClient.invalidateQueries({ exact: true, queryKey: operationQueryKeys.timeline(operationId) }),
+    queryClient.invalidateQueries({ queryKey: ["dashboard"] }),
   ]);
 }
 
