@@ -2,9 +2,9 @@
 
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
 
-import { executeOperationCommand, getOperation, getOperations } from "@/services/operations-api.service";
+import { createOperation, executeOperationCommand, getOperation, getOperations } from "@/services/operations-api.service";
 import { getCustomerTimeline } from "@/services/timeline.service";
-import type { OperationCommand, OperationCommandPayload, OperationListParams, OperationResponse } from "@/types/operations-api";
+import type { CreateOperationRequest, OperationCommand, OperationCommandPayload, OperationListParams, OperationResponse } from "@/types/operations-api";
 
 export const operationQueryKeys = {
   all: ["operations"] as const,
@@ -62,6 +62,20 @@ export function useOperationCommand(operationId: string) {
     onError: (error: Error & { status?: number }) => error.status === 409
       ? refreshOperationAfterConflict(queryClient, operationId)
       : undefined,
+    retry: false,
+  });
+}
+
+export async function refreshAfterOperationCreation(queryClient: QueryClient, operation: OperationResponse) {
+  queryClient.setQueryData(operationQueryKeys.detail(operation.id), operation);
+  await queryClient.invalidateQueries({ queryKey: operationQueryKeys.lists() });
+}
+
+export function useCreateOperation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (request: CreateOperationRequest) => createOperation(request),
+    onSuccess: (operation) => refreshAfterOperationCreation(queryClient, operation),
     retry: false,
   });
 }

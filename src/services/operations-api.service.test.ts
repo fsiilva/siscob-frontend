@@ -2,7 +2,7 @@ import MockAdapter from "axios-mock-adapter";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { api } from "./api";
-import { executeOperationCommand, getOperation, getOperations } from "./operations-api.service";
+import { createOperation, executeOperationCommand, getOperation, getOperations } from "./operations-api.service";
 
 const operation = {
   id: "op-1", companyId: "company-1", portfolioId: "portfolio-1", customerId: "customer-1",
@@ -26,6 +26,13 @@ describe("operations-api.service", () => {
   it("busca o detalhe pelo endpoint real", async () => {
     mock.onGet("/operations/op-1").reply(200, operation);
     await expect(getOperation("op-1")).resolves.toEqual(operation);
+  });
+
+  it("cria pela API real com payload explícito e receivable opcional", async () => {
+    const payload = { companyId: "1", portfolioId: "north", customerId: "123", objective: "Homologar cobrança", priority: "NORMAL" as const };
+    mock.onPost("/operations", payload).reply(201, { ...operation, companyId: "1", portfolioId: "north", customerId: "123", objective: payload.objective });
+    await expect(createOperation(payload)).resolves.toMatchObject({ objective: payload.objective });
+    expect(JSON.parse(mock.history.post[0].data as string)).toEqual(payload);
   });
 
   it.each(["assign", "release", "transfer", "start", "wait", "block", "resume", "complete", "cancel", "reopen"] as const)(

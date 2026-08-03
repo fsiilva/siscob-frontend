@@ -28,7 +28,7 @@ const navigationItems: NavigationItem[] = [
   { label: "Clientes", icon: Users },
   { label: "Cobranças", icon: CircleDollarSign },
   { label: "Analytics", icon: BarChart3 },
-  { label: "Administração", icon: ShieldCheck },
+  { label: "Administração — Carteiras", icon: ShieldCheck, href: "/administracao/carteiras" },
 ];
 
 interface AppSidebarProps {

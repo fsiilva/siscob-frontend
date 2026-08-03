@@ -3,6 +3,15 @@ export type OperationPriority = "LOW" | "NORMAL" | "HIGH" | "URGENT";
 export type OperationSortField = "createdAt" | "updatedAt" | "priority" | "status";
 export type OperationSortOrder = "asc" | "desc";
 
+export interface CreateOperationRequest {
+  companyId: string;
+  portfolioId: string;
+  customerId: string;
+  receivableId?: string;
+  objective: string;
+  priority: OperationPriority;
+}
+
 export interface OperationResponse {
   id: string;
   companyId: string;

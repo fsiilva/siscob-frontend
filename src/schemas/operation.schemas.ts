@@ -3,6 +3,15 @@ import { z } from "zod";
 export const operationStatusSchema = z.enum(["READY", "ASSIGNED", "IN_PROGRESS", "WAITING", "BLOCKED", "COMPLETED", "CANCELLED"]);
 export const operationPrioritySchema = z.enum(["LOW", "NORMAL", "HIGH", "URGENT"]);
 
+export const createOperationRequestSchema = z.object({
+  companyId: z.string().trim().min(1).max(64),
+  portfolioId: z.string().trim().min(1).max(64),
+  customerId: z.string().trim().min(1).max(64),
+  receivableId: z.string().trim().min(1).max(64).optional(),
+  objective: z.string().trim().min(1).max(1000),
+  priority: operationPrioritySchema,
+});
+
 export const operationResponseSchema = z.object({
   id: z.string(), companyId: z.string(), portfolioId: z.string(), customerId: z.string(),
   receivableId: z.string().nullable(), assignedOperatorId: z.string().nullable(), objective: z.string(),

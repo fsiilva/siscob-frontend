@@ -1,5 +1,5 @@
-import { operationListParamsSchema, operationListResponseSchema, operationResponseSchema } from "@/schemas/operation.schemas";
-import type { OperationCommand, OperationCommandPayload, OperationListParams } from "@/types/operations-api";
+import { createOperationRequestSchema, operationListParamsSchema, operationListResponseSchema, operationResponseSchema } from "@/schemas/operation.schemas";
+import type { CreateOperationRequest, OperationCommand, OperationCommandPayload, OperationListParams } from "@/types/operations-api";
 
 import { api } from "./api";
 
@@ -11,6 +11,12 @@ export async function getOperations(params: OperationListParams) {
 
 export async function getOperation(id: string) {
   const { data } = await api.get(`/operations/${id}`);
+  return operationResponseSchema.parse(data);
+}
+
+export async function createOperation(request: CreateOperationRequest) {
+  const payload = createOperationRequestSchema.parse(request);
+  const { data } = await api.post("/operations", compact(payload));
   return operationResponseSchema.parse(data);
 }
 

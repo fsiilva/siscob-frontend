@@ -27,3 +27,13 @@ export interface CustomerSummary {
   customerId: number;
   receivables: CustomerReceivablesSummary;
 }
+
+export interface CustomersResponse {
+  data: Customer[];
+  pagination: {
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+  };
+}

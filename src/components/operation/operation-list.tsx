@@ -5,21 +5,27 @@ import { useState } from "react";
 
 import { Button, EmptyState, Input, LoadingState, Pagination, Select, Skeleton, Table, TableBody, TableCell, TableContainer, TableHead, TableHeader, TableRow } from "@/components/ui";
 import { useCompany } from "@/context/company";
+import { useAuth } from "@/hooks/useAuth";
 import { useOperations } from "@/hooks/useOperations";
 import { ApiRequestError } from "@/services/api";
 import type { OperationListParams, OperationPriority, OperationSortField, OperationSortOrder, OperationStatus } from "@/types/operations-api";
 
+import { CreateOperationDrawer } from "./create-operation-drawer";
+import { canCreateOperation } from "./create-operation-form";
 import { OperationDetailsDrawer } from "./operation-details-drawer";
 import { formatOperationDate, operationPriorityLabels, operationStatusLabels } from "./operation-presenter";
 
 type FilterDraft = Omit<OperationListParams, "page" | "pageSize">;
 
 export function OperationList() {
+  const { user } = useAuth();
   const { selectedCompany } = useCompany();
   const initialFilters: FilterDraft = { sortBy: "updatedAt", sortOrder: "desc", ...(selectedCompany ? { companyId: String(selectedCompany.id) } : {}) };
   const [draft, setDraft] = useState<FilterDraft>(initialFilters);
   const [params, setParams] = useState<OperationListParams>({ ...initialFilters, page: 1, pageSize: 20 });
   const [selectedOperationId, setSelectedOperationId] = useState<string | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [success, setSuccess] = useState<string | null>(null);
   const query = useOperations(params);
 
   function applyFilters() {
@@ -36,7 +42,8 @@ export function OperationList() {
 
   return (
     <section aria-labelledby="operations-title" className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-sm font-semibold text-slate-950" id="operations-title">Operations</h2><Button loading={query.isFetching} onClick={() => void query.refetch()} variant="secondary"><RefreshCw aria-hidden className="size-4" />Atualizar dados</Button></div>
+      <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-sm font-semibold text-slate-950" id="operations-title">Operations</h2><div className="flex gap-2">{canCreateOperation(user) ? <Button onClick={() => { setSuccess(null); setCreateOpen(true); }}>Nova Operation</Button> : null}<Button loading={query.isFetching} onClick={() => void query.refetch()} variant="secondary"><RefreshCw aria-hidden className="size-4" />Atualizar dados</Button></div></div>
+      {success ? <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800" role="status">{success}</p> : null}
       <div className="grid gap-3 rounded-xl border border-slate-200 bg-white p-4 sm:grid-cols-2 xl:grid-cols-4">
         <Select aria-label="Filtrar por estado" onChange={(event) => setDraft((current) => ({ ...current, status: valueOrUndefined(event.target.value) as OperationStatus | undefined }))} value={draft.status ?? ""}><option value="">Todos os estados</option>{Object.entries(operationStatusLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</Select>
         <Select aria-label="Filtrar por prioridade" onChange={(event) => setDraft((current) => ({ ...current, priority: valueOrUndefined(event.target.value) as OperationPriority | undefined }))} value={draft.priority ?? ""}><option value="">Todas as prioridades</option>{Object.entries(operationPriorityLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</Select>
@@ -51,7 +58,7 @@ export function OperationList() {
 
       {query.isLoading ? <LoadingState label="Carregando Operations"><Skeleton className="h-80" /></LoadingState> : null}
       {query.isError ? <EmptyState action={status !== 403 ? <Button onClick={() => void query.refetch()}>Tentar novamente</Button> : undefined} description={status === 403 ? "Você não tem acesso a esta lista." : status === 400 || status === 422 ? "Revise os filtros informados." : "Não foi possível consultar as Operations."} icon={AlertTriangle} title={status === 403 ? "Acesso negado" : "Erro ao carregar Operations"} /> : null}
-      {query.data?.items.length === 0 ? <EmptyState description="Nenhuma Operation corresponde aos filtros aplicados." title="Nenhuma Operation encontrada" /> : null}
+      {query.data?.items.length === 0 ? <EmptyState action={canCreateOperation(user) ? <Button onClick={() => setCreateOpen(true)}>Criar primeira Operation</Button> : undefined} description="Nenhuma Operation corresponde aos filtros aplicados." title="Nenhuma Operation encontrada" /> : null}
       {query.data?.items.length ? (
         <div className="space-y-4 rounded-xl border border-slate-200 bg-white">
           <TableContainer><Table><TableHeader><TableRow><TableHead>Cliente / Receivable</TableHead><TableHead>Objetivo</TableHead><TableHead>Empresa / Carteira</TableHead><TableHead>Operador</TableHead><TableHead>Estado</TableHead><TableHead>Prioridade</TableHead><TableHead>Atualização</TableHead><TableHead><span className="sr-only">Ações</span></TableHead></TableRow></TableHeader><TableBody>
@@ -61,6 +68,7 @@ export function OperationList() {
         </div>
       ) : null}
       <OperationDetailsDrawer onClose={() => setSelectedOperationId(null)} operationId={selectedOperationId} />
+      {createOpen ? <CreateOperationDrawer onClose={() => setCreateOpen(false)} onCreated={(operation) => { setCreateOpen(false); setSuccess("Operation criada com sucesso."); setSelectedOperationId(operation.id); }} /> : null}
     </section>
   );
 }

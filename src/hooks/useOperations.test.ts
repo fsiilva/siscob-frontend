@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import type { OperationResponse } from "@/types/operations-api";
 
-import { operationQueryKeys, refreshOperationAfterConflict, refreshOperationQueries } from "./useOperations";
+import { operationQueryKeys, refreshAfterOperationCreation, refreshOperationAfterConflict, refreshOperationQueries } from "./useOperations";
 
 const operation = { id: "op-1", customerId: "customer-1", version: 2 } as OperationResponse;
 const listParams = { page: 1, pageSize: 20, sortBy: "updatedAt" as const, sortOrder: "desc" as const };
@@ -34,5 +34,13 @@ describe("Operation query orchestration", () => {
     expect(client.getQueryState(operationQueryKeys.detail("op-1"))?.isInvalidated).toBe(true);
     expect(client.getQueryState(operationQueryKeys.list(listParams))?.isInvalidated).toBe(true);
     expect(client.getQueryState(operationQueryKeys.timeline("op-1"))?.isInvalidated).toBe(true);
+  });
+
+  it("insere o detalhe criado e invalida somente listas", async () => {
+    const client = new QueryClient();
+    client.setQueryData(operationQueryKeys.list(listParams), { items: [] });
+    await refreshAfterOperationCreation(client, operation);
+    expect(client.getQueryData(operationQueryKeys.detail("op-1"))).toBe(operation);
+    expect(client.getQueryState(operationQueryKeys.list(listParams))?.isInvalidated).toBe(true);
   });
 });
