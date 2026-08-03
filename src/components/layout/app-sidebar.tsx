@@ -22,7 +22,7 @@ interface NavigationItem {
 }
 
 const navigationItems: NavigationItem[] = [
-  { label: "Dashboard", icon: LayoutDashboard, href: "/" },
+  { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
   { label: "Carteira", icon: BriefcaseBusiness, href: "/receivables" },
   { label: "Minha Operação", icon: CircleDollarSign, href: "/operations" },
   { label: "Clientes", icon: Users },
