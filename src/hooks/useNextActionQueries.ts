@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
 
 import { ApiRequestError } from "@/services/api";
+import { sharedQueryKeys } from "@/lib/query-keys";
 import {
   cancelNextAction,
   completeNextAction,
@@ -13,11 +14,11 @@ import {
 import type { CancelNextActionRequest, RescheduleNextActionRequest } from "@/types/next-actions-api";
 
 export const nextActionQueryKeys = {
-  mine: ["me", "next-actions"] as const,
-  customer: (customerId: number) => ["customers", customerId, "next-actions"] as const,
-  customerDetails: (customerId: number) => ["customers", customerId] as const,
-  operationQueue: ["operation", "queue"] as const,
-  customerTimeline: (customerId: number) => ["customers", customerId, "timeline"] as const,
+  mine: sharedQueryKeys.userNextActions,
+  customer: sharedQueryKeys.customerNextActions,
+  customerDetails: sharedQueryKeys.customer,
+  operationQueue: sharedQueryKeys.operationQueue,
+  customerTimeline: sharedQueryKeys.customerTimeline,
 };
 
 export function useMyNextActions() {

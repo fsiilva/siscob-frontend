@@ -2,17 +2,18 @@
 
 import { useMutation, useQueryClient, type QueryClient } from "@tanstack/react-query";
 
+import { sharedQueryKeys } from "@/lib/query-keys";
 import { createInteraction } from "@/services/interactions.service";
 import type { CreateInteractionRequest } from "@/types/interactions";
 
 export const interactionQueryKeys = {
-  customerInteractions: (customerId: number) => ["customers", customerId, "interactions"] as const,
-  customerNextActions: (customerId: number) => ["customers", customerId, "next-actions"] as const,
-  userNextActions: ["me", "next-actions"] as const,
-  customer: (customerId: number) => ["customers", customerId] as const,
-  customerSummary: (customerId: number) => ["customers", customerId, "summary"] as const,
-  operationQueue: ["operation", "queue"] as const,
-  customerTimeline: (customerId: number) => ["customers", customerId, "timeline"] as const,
+  customerInteractions: sharedQueryKeys.customerInteractions,
+  customerNextActions: sharedQueryKeys.customerNextActions,
+  userNextActions: sharedQueryKeys.userNextActions,
+  customer: sharedQueryKeys.customer,
+  customerSummary: sharedQueryKeys.customerSummary,
+  operationQueue: sharedQueryKeys.operationQueue,
+  customerTimeline: sharedQueryKeys.customerTimeline,
 };
 
 export async function invalidateInteractionQueries(queryClient: QueryClient, customerId: number) {

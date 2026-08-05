@@ -2,9 +2,10 @@
 
 import { useInfiniteQuery } from "@tanstack/react-query";
 
+import { sharedQueryKeys } from "@/lib/query-keys";
 import { getCustomerTimeline } from "@/services/timeline.service";
 
-export const customerTimelineQueryKey = (customerId: number) => ["customers", customerId, "timeline"] as const;
+export const customerTimelineQueryKey = sharedQueryKeys.customerTimeline;
 
 export function getNextTimelinePageParam(lastPage: { hasMore: boolean; nextCursor: string | null }) {
   return lastPage.hasMore ? (lastPage.nextCursor ?? undefined) : undefined;

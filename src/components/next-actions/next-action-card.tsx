@@ -6,7 +6,7 @@ import { useState, type ComponentType } from "react";
 import { Badge, Button, Card, CardContent, Input } from "@/components/ui";
 import type { BadgeVariant } from "@/components/ui";
 import { useNextActionMutations } from "@/hooks/useNextActionQueries";
-import { ApiRequestError } from "@/services/api";
+import { getSafeApiErrorMessage } from "@/lib/api-error-message";
 import type { NextActionApiResponse, NextActionApiStatus, NextActionApiType } from "@/types/next-actions-api";
 
 import { getNextActionPriority, isActiveNextAction, nextActionStatusLabels, nextActionTypeLabels, type NextActionPriority } from "./next-action-presenter";
@@ -112,12 +112,15 @@ export function NextActionCard({ action }: { action: NextActionApiResponse }) {
 }
 
 function getActionErrorMessage(error: Error) {
-  if (!(error instanceof ApiRequestError)) return "Erro de rede. Verifique sua conexão e tente novamente.";
-  if (error.status === 401) return "Sua sessão expirou. Entre novamente para continuar.";
-  if (error.status === 403) return "Você não tem permissão para alterar esta ação.";
-  if (error.status === 404) return "Esta ação não foi encontrada. Atualize a lista e tente novamente.";
-  if (error.status === 409) return "A ação foi alterada e a lista está sendo atualizada.";
-  return error.message || "Não foi possível atualizar a ação.";
+  return getSafeApiErrorMessage(error, {
+    defaultMessage: "Não foi possível atualizar a ação.",
+    byStatus: {
+      401: "Sua sessão expirou. Entre novamente para continuar.",
+      403: "Você não tem permissão para alterar esta ação.",
+      404: "Esta ação não foi encontrada. Atualize a lista e tente novamente.",
+      409: "A ação foi alterada e a lista está sendo atualizada.",
+    },
+  });
 }
 
 function toDateTimeLocal(value: string) {

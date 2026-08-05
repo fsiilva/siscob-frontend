@@ -4,7 +4,7 @@ import { AlertTriangle } from "lucide-react";
 
 import { Button, EmptyState, LoadingState, Skeleton } from "@/components/ui";
 import { canFetchNextTimelinePage, useCustomerTimeline } from "@/hooks/useCustomerTimeline";
-import { ApiRequestError } from "@/services/api";
+import { getSafeApiErrorMessage } from "@/lib/api-error-message";
 
 import { TimelineEmpty } from "./timeline-empty";
 import { TimelineItem } from "./timeline-item";
@@ -65,8 +65,11 @@ export function TimelineList({ customerId }: { customerId: number }) {
 }
 
 function getTimelineErrorMessage(error: Error) {
-  if (!(error instanceof ApiRequestError)) return "Erro de rede. Verifique sua conexão e tente novamente.";
-  if (error.status === 401) return "Sua sessão expirou. Entre novamente para continuar.";
-  if (error.status === 400) return "O cursor ou filtro da timeline é inválido. Reinicie a consulta.";
-  return error.message || "Não foi possível consultar a timeline.";
+  return getSafeApiErrorMessage(error, {
+    defaultMessage: "Não foi possível consultar a timeline.",
+    byStatus: {
+      400: "O cursor ou filtro da timeline é inválido. Reinicie a consulta.",
+      401: "Sua sessão expirou. Entre novamente para continuar.",
+    },
+  });
 }

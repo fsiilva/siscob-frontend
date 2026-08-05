@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 
 import { Drawer } from "@/components/ui";
+import { getSafeApiErrorMessage } from "@/lib/api-error-message";
 
 import { InteractionContent } from "./interaction-content";
 import { InteractionFooter } from "./interaction-footer";
@@ -178,9 +179,15 @@ function InteractionEngine({ customerId, customerName, onCancel, onSave }: Inter
         nextAction,
       }));
     } catch (error) {
-      setSaveError(error instanceof Error && error.message
-        ? error.message
-        : "Não foi possível registrar o atendimento. Tente novamente.");
+      setSaveError(getSafeApiErrorMessage(error, {
+        defaultMessage: "Não foi possível registrar o atendimento. Tente novamente.",
+        byStatus: {
+          400: "Revise os dados do atendimento e tente novamente.",
+          401: "Sua sessão expirou. Entre novamente para continuar.",
+          403: "Você não tem permissão para registrar este atendimento.",
+          409: "Os dados foram alterados. Atualize a página e tente novamente.",
+        },
+      }));
     } finally {
       setIsSaving(false);
     }
