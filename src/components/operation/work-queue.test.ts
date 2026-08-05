@@ -17,6 +17,13 @@ describe("intelligent work queue UI", () => {
   it("contains cards, score, reasons, highlight and existing actions", () => {
     for (const text of ["COBRE AGORA", "Score", "Motivos da prioridade", "Abrir Operation", "Registrar cobrança", "Atualizar dados"]) expect(source).toContain(text);
   });
+  it("submits the Operation context through the existing Interaction Drawer", () => {
+    expect(source).toContain("operationId: interactionItem.operation.id");
+    expect(source).toContain("operationContext={{");
+    expect(source).toContain("registrada com sucesso");
+    expect(source).not.toContain("createTimeline");
+    expect(source).not.toContain("createNextAction");
+  });
   it("contains filters, pagination and all async states", () => {
     for (const text of ["query.isLoading", "query.isError", "query.refetch()", "Tentar novamente", "Nenhuma cobrança pendente para os filtros selecionados.", "Pagination", "user?.role === \"ADMIN\""]) expect(source).toContain(text);
   });

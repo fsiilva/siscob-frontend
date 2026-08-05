@@ -13,27 +13,36 @@ export const interactionQueryKeys = {
   customer: sharedQueryKeys.customer,
   customerSummary: sharedQueryKeys.customerSummary,
   operationQueue: sharedQueryKeys.operationQueue,
-  customerTimeline: sharedQueryKeys.customerTimeline,
+  operationDetails: sharedQueryKeys.operationDetails,
+  operationTimeline: sharedQueryKeys.operationTimeline,
+  dashboardOverview: sharedQueryKeys.dashboardOverview,
+  managementDashboard: sharedQueryKeys.managementDashboard,
 };
 
-export async function invalidateInteractionQueries(queryClient: QueryClient, customerId: number) {
-  await Promise.all([
+export async function invalidateInteractionQueries(queryClient: QueryClient, customerId: number, operationId?: string) {
+  const invalidations = [
     queryClient.invalidateQueries({ exact: true, queryKey: interactionQueryKeys.customerInteractions(customerId) }),
     queryClient.invalidateQueries({ exact: true, queryKey: interactionQueryKeys.customerNextActions(customerId) }),
     queryClient.invalidateQueries({ exact: true, queryKey: interactionQueryKeys.userNextActions }),
-    queryClient.invalidateQueries({ exact: true, queryKey: interactionQueryKeys.customer(customerId) }),
-    queryClient.invalidateQueries({ exact: true, queryKey: interactionQueryKeys.customerSummary(customerId) }),
-    queryClient.invalidateQueries({ exact: true, queryKey: interactionQueryKeys.operationQueue }),
-    queryClient.invalidateQueries({ exact: true, queryKey: interactionQueryKeys.customerTimeline(customerId) }),
-  ]);
+    queryClient.invalidateQueries({ queryKey: interactionQueryKeys.operationQueue }),
+    queryClient.invalidateQueries({ exact: true, queryKey: interactionQueryKeys.dashboardOverview }),
+    queryClient.invalidateQueries({ exact: true, queryKey: interactionQueryKeys.managementDashboard }),
+  ];
+  if (operationId) {
+    invalidations.push(
+      queryClient.invalidateQueries({ exact: true, queryKey: interactionQueryKeys.operationDetails(operationId) }),
+      queryClient.invalidateQueries({ exact: true, queryKey: interactionQueryKeys.operationTimeline(operationId) }),
+    );
+  }
+  await Promise.all(invalidations);
 }
 
-export function useCreateInteraction(customerId: number) {
+export function useCreateInteraction(customerId: number, operationId?: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (payload: CreateInteractionRequest) => createInteraction(customerId, payload),
-    onSuccess: () => invalidateInteractionQueries(queryClient, customerId),
+    onSuccess: () => invalidateInteractionQueries(queryClient, customerId, operationId),
     retry: false,
   });
 }

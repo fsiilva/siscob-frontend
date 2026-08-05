@@ -14,6 +14,7 @@ export interface CreateInteractionRequest {
   outcome: InteractionOutcome;
   notes: string;
   receivableId?: string;
+  operationId?: string;
 }
 
 export interface InteractionResponse {

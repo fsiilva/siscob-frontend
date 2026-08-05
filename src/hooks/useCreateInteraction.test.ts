@@ -8,15 +8,16 @@ describe("invalidação após criar interação", () => {
     const queryClient = new QueryClient();
     const invalidate = vi.spyOn(queryClient, "invalidateQueries").mockResolvedValue(undefined);
 
-    await invalidateInteractionQueries(queryClient, 123);
+    await invalidateInteractionQueries(queryClient, 123, "operation-1");
 
-    expect(invalidate).toHaveBeenCalledTimes(7);
+    expect(invalidate).toHaveBeenCalledTimes(8);
     expect(invalidate).toHaveBeenCalledWith({ exact: true, queryKey: interactionQueryKeys.customerInteractions(123) });
     expect(invalidate).toHaveBeenCalledWith({ exact: true, queryKey: interactionQueryKeys.customerNextActions(123) });
     expect(invalidate).toHaveBeenCalledWith({ exact: true, queryKey: interactionQueryKeys.userNextActions });
-    expect(invalidate).toHaveBeenCalledWith({ exact: true, queryKey: interactionQueryKeys.customer(123) });
-    expect(invalidate).toHaveBeenCalledWith({ exact: true, queryKey: interactionQueryKeys.customerSummary(123) });
-    expect(invalidate).toHaveBeenCalledWith({ exact: true, queryKey: interactionQueryKeys.operationQueue });
-    expect(invalidate).toHaveBeenCalledWith({ exact: true, queryKey: interactionQueryKeys.customerTimeline(123) });
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: interactionQueryKeys.operationQueue });
+    expect(invalidate).toHaveBeenCalledWith({ exact: true, queryKey: interactionQueryKeys.operationDetails("operation-1") });
+    expect(invalidate).toHaveBeenCalledWith({ exact: true, queryKey: interactionQueryKeys.operationTimeline("operation-1") });
+    expect(invalidate).toHaveBeenCalledWith({ exact: true, queryKey: interactionQueryKeys.dashboardOverview });
+    expect(invalidate).toHaveBeenCalledWith({ exact: true, queryKey: interactionQueryKeys.managementDashboard });
   });
 });

@@ -11,6 +11,7 @@ describe("interactions.service", () => {
     outcome: "promise_to_pay" as const,
     notes: "Cliente prometeu pagar.",
     receivableId: "84510",
+    operationId: "8ee00be1-7a09-4c4a-8af1-13562e503c1f",
   };
 
   beforeEach(() => {

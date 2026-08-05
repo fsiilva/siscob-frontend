@@ -53,6 +53,12 @@ export interface InteractionDrawerProps {
   open: boolean;
   customerId: number;
   customerName: string;
+  operationContext?: {
+    company: string;
+    portfolio: string;
+    receivable?: string;
+    objective: string;
+  };
   onClose(): void;
   onSave(interactionFlow: InteractionFlow): Promise<void>;
 }
@@ -72,6 +78,7 @@ export function InteractionDrawer({
   open,
   customerId,
   customerName,
+  operationContext,
   onClose,
   onSave,
 }: InteractionDrawerProps) {
@@ -87,6 +94,7 @@ export function InteractionDrawer({
       <InteractionEngine
         customerId={customerId}
         customerName={customerName}
+        operationContext={operationContext}
         onCancel={onClose}
         onSave={onSave}
       />
@@ -97,11 +105,12 @@ export function InteractionDrawer({
 interface InteractionEngineProps {
   customerId: number;
   customerName: string;
+  operationContext?: InteractionDrawerProps["operationContext"];
   onCancel(): void;
   onSave(interactionFlow: InteractionFlow): Promise<void>;
 }
 
-function InteractionEngine({ customerId, customerName, onCancel, onSave }: InteractionEngineProps) {
+function InteractionEngine({ customerId, customerName, operationContext, onCancel, onSave }: InteractionEngineProps) {
   const [step, setStep] = useState<InteractionStep>(1);
   const [flow, setFlow] = useState<InteractionFlowDraft>(initialFlow);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -185,7 +194,9 @@ function InteractionEngine({ customerId, customerName, onCancel, onSave }: Inter
           400: "Revise os dados do atendimento e tente novamente.",
           401: "Sua sessão expirou. Entre novamente para continuar.",
           403: "Você não tem permissão para registrar este atendimento.",
+          404: "A Operation não foi encontrada. Atualize a fila e tente novamente.",
           409: "Os dados foram alterados. Atualize a página e tente novamente.",
+          422: "A Operation não corresponde ao cliente ou recebível selecionado.",
         },
       }));
     } finally {
@@ -195,7 +206,7 @@ function InteractionEngine({ customerId, customerName, onCancel, onSave }: Inter
 
   return (
     <div className="flex min-h-full flex-col" data-customer-id={customerId}>
-      <InteractionHeader customerName={customerName} />
+      <InteractionHeader context={operationContext} customerName={customerName} />
       <InteractionContent>{renderStep(step, flow, {
         changeAttemptOutcome,
         changeContactType,

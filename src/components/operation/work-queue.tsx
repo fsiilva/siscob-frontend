@@ -22,15 +22,22 @@ export function WorkQueue() {
   const [group, setGroup] = useState<WorkQueueGroup>("priority");
   const [operationId, setOperationId] = useState<string | null>(null);
   const [interactionItem, setInteractionItem] = useState<WorkQueueItem | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const query = useOperationQueue(filters);
   const items = useMemo(() => filterWorkQueueGroup(query.data?.items ?? [], group), [group, query.data?.items]);
-  const mutation = useCreateInteraction(Number(interactionItem?.operation.customerId ?? 0));
+  const mutation = useCreateInteraction(
+    Number(interactionItem?.operation.customerId ?? 0),
+    interactionItem?.operation.id,
+  );
 
   async function save(flow: InteractionFlow) {
     if (!interactionItem) return;
-    await mutation.mutateAsync(buildInteractionPayload(flow, interactionItem.operation.receivableId ?? undefined));
+    await mutation.mutateAsync({
+      ...buildInteractionPayload(flow, interactionItem.operation.receivableId ?? undefined),
+      operationId: interactionItem.operation.id,
+    });
+    setSuccessMessage(`Cobrança de ${interactionItem.customer?.name ?? interactionItem.operation.customerId} registrada com sucesso.`);
     setInteractionItem(null);
-    await query.refetch();
   }
 
   return <section aria-labelledby="work-queue-title" className="space-y-4">
@@ -46,11 +53,12 @@ export function WorkQueue() {
     </div>
     {query.isLoading ? <LoadingState label="Carregando fila de trabalho"><Skeleton className="h-72" /></LoadingState> : null}
     {query.isError ? <EmptyState action={<Button onClick={() => void query.refetch()}>Tentar novamente</Button>} description="Verifique os filtros e tente novamente." icon={AlertTriangle} title="Não foi possível carregar a fila de trabalho" /> : null}
+    {successMessage ? <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800" role="status">{successMessage}</p> : null}
     {!query.isLoading && !query.isError && items.length === 0 ? <EmptyState description="Nenhuma cobrança pendente para os filtros selecionados." title="Fila de trabalho vazia" /> : null}
     {items.map((item, index) => <QueueCard featured={index === 0} item={item} key={item.operation.id} onInteraction={() => setInteractionItem(item)} onOpen={() => setOperationId(item.operation.id)} onRefresh={() => void query.refetch()} />)}
     {query.data ? <Pagination onPageChange={(page) => setFilters((x) => ({ ...x, page }))} page={query.data.page} totalPages={query.data.totalPages} /> : null}
     <OperationDetailsDrawer onClose={() => setOperationId(null)} operationId={operationId} />
-    {interactionItem ? <InteractionDrawer customerId={Number(interactionItem.operation.customerId)} customerName={interactionItem.customer?.name ?? interactionItem.operation.customerId} onClose={() => setInteractionItem(null)} onSave={save} open /> : null}
+    {interactionItem ? <InteractionDrawer customerId={Number(interactionItem.operation.customerId)} customerName={interactionItem.customer?.name ?? interactionItem.operation.customerId} operationContext={{ company: interactionItem.operation.companyName ?? interactionItem.operation.companyId, portfolio: interactionItem.operation.portfolioName ?? interactionItem.operation.portfolioId, receivable: interactionItem.operation.receivableId ?? undefined, objective: interactionItem.operation.objective }} onClose={() => setInteractionItem(null)} onSave={save} open /> : null}
   </section>;
 }
 
