@@ -14,15 +14,20 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
+
+import { canViewNavigationItem } from "./navigation-authorization";
 
 interface NavigationItem {
   label: string;
   icon: LucideIcon;
   href?: string;
+  adminOnly?: boolean;
 }
 
 const navigationItems: NavigationItem[] = [
   { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
+  { label: "Dashboard Gerencial", icon: BarChart3, href: "/dashboard/management", adminOnly: true },
   { label: "Carteira", icon: BriefcaseBusiness, href: "/receivables" },
   { label: "Minha Operação", icon: CircleDollarSign, href: "/operations" },
   { label: "Clientes", icon: Users },
@@ -40,11 +45,12 @@ interface AppSidebarProps {
 
 function Navigation({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?: () => void }) {
   const pathname = usePathname();
+  const { user } = useAuth();
 
   return (
     <nav aria-label="Navegação principal" className="flex-1 space-y-1 px-3 py-6">
-      {navigationItems.map(({ label, icon: Icon, href }) => {
-        const active = href === "/" ? pathname === href : pathname.startsWith(href ?? "#");
+      {navigationItems.filter((item) => canViewNavigationItem(item.adminOnly, user?.role)).map(({ label, icon: Icon, href }) => {
+        const active = href === "/dashboard" ? pathname === href : pathname.startsWith(href ?? "#");
         const content = (
           <>
             <Icon aria-hidden="true" className="size-5 shrink-0" />
