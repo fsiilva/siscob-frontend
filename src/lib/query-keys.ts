@@ -10,4 +10,5 @@ export const sharedQueryKeys = {
   userNextActions: ["me", "next-actions"] as const,
   dashboardOverview: ["dashboard", "overview"] as const,
   managementDashboard: ["dashboard", "management"] as const,
+  productivityDashboard: ["dashboard", "productivity"] as const,
 };

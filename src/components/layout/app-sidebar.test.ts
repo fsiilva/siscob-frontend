@@ -12,4 +12,11 @@ describe("AppSidebar authorization", () => {
     expect(canViewNavigationItem(true, "ADMIN")).toBe(true);
     expect(canViewNavigationItem(true, "USER")).toBe(false);
   });
+
+  it("shows Productivity to ADMIN and USER", () => {
+    const source = readFileSync(fileURLToPath(new URL("./app-sidebar.tsx", import.meta.url)), "utf8");
+    expect(source).toContain("Produtividade");
+    expect(canViewNavigationItem(undefined, "ADMIN")).toBe(true);
+    expect(canViewNavigationItem(undefined, "USER")).toBe(true);
+  });
 });

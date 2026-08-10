@@ -37,4 +37,12 @@ describe("dashboard route and navigation", () => {
     expect(sidebar).not.toContain('href: "/dashboard-management"');
     expect(sidebar).not.toContain('href: "/dashboard/manager"');
   });
+
+  it("exposes productivity to ADMIN and USER in the authenticated layout", () => {
+    const page = source("./(dashboard)/dashboard/productivity/page.tsx");
+    const sidebar = source("../components/layout/app-sidebar.tsx");
+    expect(page).toContain("<ProductivityDashboard />");
+    expect(sidebar).toContain('{ label: "Produtividade", icon: CalendarDays, href: "/dashboard/productivity" }');
+    expect(sidebar).not.toContain('{ label: "Produtividade", icon: CalendarDays, href: "/dashboard/productivity", adminOnly: true }');
+  });
 });
