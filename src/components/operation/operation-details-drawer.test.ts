@@ -10,11 +10,23 @@ describe("OperationDetailsDrawer", () => {
     for (const field of ["Empresa", "Carteira", "Cliente", "Recebível", "Operador responsável", "Version", "Waiting", "Blocked", "Completion", "Cancelamento"]) expect(source).toContain(field);
   });
 
-  it("renders next-action status, due date, description and read-only open button", () => {
-    expect(source).toContain("action.status");
-    expect(source).toContain("action.description");
-    expect(source).toContain("action.dueAt");
-    expect(source).toContain("Abrir Next Action");
+  it("reuses the actionable Next Action card with Operation context", () => {
+    expect(source).toContain("NextActionCard");
+    expect(source).toContain("customerId: operation.customerId");
+    expect(source).toContain("operationId={operation.id}");
+  });
+
+  it("reuses InteractionDrawer and sends the complete Operation context", () => {
+    expect(source).toContain("InteractionDrawer");
+    expect(source).toContain("buildInteractionPayload");
+    expect(source).toContain("operationId: operation.id");
+    for (const field of ["company:", "portfolio:", "receivable:", "objective:"]) expect(source).toContain(field);
+  });
+
+  it("uses the timeline embedded in details without a second timeline request", () => {
+    expect(source).toContain("items={details.timeline}");
+    expect(source).not.toContain("useOperationTimeline");
+    expect(source).not.toContain("getOperationTimeline");
   });
 
   it("renders interaction date, type and description", () => {

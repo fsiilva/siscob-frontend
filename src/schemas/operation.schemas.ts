@@ -53,7 +53,8 @@ export const operationTimelineResponseSchema = z.object({
 });
 
 const operationDetailsNextActionSchema = z.object({
-  id: z.string(), status: z.string(), type: z.string(), title: z.string(),
+  id: z.string(), status: z.enum(["PENDING", "IN_PROGRESS", "COMPLETED", "CANCELLED", "OVERDUE"]),
+  type: z.enum(["CALL", "WHATSAPP", "EMAIL", "VERIFY_PAYMENT", "SEND_DOCUMENT", "VISIT", "CLOSE_CASE", "SYSTEM"]), title: z.string(),
   description: z.string(), dueAt: z.string(), createdAt: z.string(),
 });
 

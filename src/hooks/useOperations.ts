@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
 
+import { sharedQueryKeys } from "@/lib/query-keys";
 import { createOperation, executeOperationCommand, getOperation, getOperationDetails, getOperations, getOperationTimeline } from "@/services/operations-api.service";
 import type { CreateOperationRequest, OperationCommand, OperationCommandPayload, OperationListParams, OperationResponse } from "@/types/operations-api";
 
@@ -10,8 +11,8 @@ export const operationQueryKeys = {
   lists: () => ["operations", "list"] as const,
   list: (params: OperationListParams) => ["operations", "list", params] as const,
   detail: (id: string) => ["operations", "detail", id] as const,
-  details: (id: string) => ["operations", id, "details"] as const,
-  timeline: (id: string) => ["operations", id, "timeline"] as const,
+  details: sharedQueryKeys.operationDetails,
+  timeline: sharedQueryKeys.operationTimeline,
 };
 
 export function useOperations(params: OperationListParams) {
@@ -48,7 +49,9 @@ export async function refreshOperationQueries(queryClient: QueryClient, operatio
     queryClient.invalidateQueries({ queryKey: operationQueryKeys.lists() }),
     queryClient.invalidateQueries({ exact: true, queryKey: operationQueryKeys.details(operation.id) }),
     queryClient.invalidateQueries({ exact: true, queryKey: operationQueryKeys.timeline(operation.id) }),
-    queryClient.invalidateQueries({ queryKey: ["dashboard"] }),
+    queryClient.invalidateQueries({ queryKey: sharedQueryKeys.operationQueue }),
+    queryClient.invalidateQueries({ exact: true, queryKey: sharedQueryKeys.dashboardOverview }),
+    queryClient.invalidateQueries({ exact: true, queryKey: sharedQueryKeys.managementDashboard }),
   ]);
 }
 
@@ -58,7 +61,9 @@ export async function refreshOperationAfterConflict(queryClient: QueryClient, op
     queryClient.invalidateQueries({ exact: true, queryKey: operationQueryKeys.details(operationId) }),
     queryClient.invalidateQueries({ queryKey: operationQueryKeys.lists() }),
     queryClient.invalidateQueries({ exact: true, queryKey: operationQueryKeys.timeline(operationId) }),
-    queryClient.invalidateQueries({ queryKey: ["dashboard"] }),
+    queryClient.invalidateQueries({ queryKey: sharedQueryKeys.operationQueue }),
+    queryClient.invalidateQueries({ exact: true, queryKey: sharedQueryKeys.dashboardOverview }),
+    queryClient.invalidateQueries({ exact: true, queryKey: sharedQueryKeys.managementDashboard }),
   ]);
 }
 

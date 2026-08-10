@@ -13,4 +13,17 @@ describe("migração das telas de Next Actions", () => {
     expect(source).not.toContain("useNextActions");
     expect(source).not.toContain("NextActionsContext");
   });
+  it("reuses complete, reschedule and cancel mutations with a single-submission lock", () => {
+    const source = readFileSync(fileURLToPath(new URL("next-action-card.tsx", import.meta.url)), "utf8");
+    for (const action of ["completeMutation.mutateAsync", "rescheduleMutation.mutateAsync", "cancelMutation.mutateAsync"]) expect(source).toContain(action);
+    expect(source).toContain("submissionLock.current");
+    expect(source).toContain("disabled={!active || isPending}");
+  });
+
+  it("keeps authorization errors safe and the card usable", () => {
+    const source = readFileSync(fileURLToPath(new URL("next-action-card.tsx", import.meta.url)), "utf8");
+    expect(source).toContain("403:");
+    expect(source).toContain("getSafeApiErrorMessage");
+    expect(source).not.toContain("error.message");
+  });
 });

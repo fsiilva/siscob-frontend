@@ -21,7 +21,7 @@ export const nextActionStatusLabels: Record<NextActionApiStatus, string> = {
   OVERDUE: "Atrasada",
 };
 
-export function getNextActionPriority(action: NextActionApiResponse): NextActionPriority {
+export function getNextActionPriority(action: Pick<NextActionApiResponse, "status" | "type">): NextActionPriority {
   if (action.status === "OVERDUE" || action.type === "VERIFY_PAYMENT") return "high";
   if (action.type === "CLOSE_CASE" || action.type === "SYSTEM") return "low";
   return "medium";

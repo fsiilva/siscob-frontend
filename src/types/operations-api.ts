@@ -84,7 +84,7 @@ export interface OperationDetailsResponse {
   };
   timeline: OperationTimelineItem[];
   nextActions: Array<{
-    id: string; status: string; type: string; title: string;
+    id: string; status: import("./next-actions-api").NextActionApiStatus; type: import("./next-actions-api").NextActionApiType; title: string;
     description: string; dueAt: string; createdAt: string;
   }>;
   interactions: Array<{

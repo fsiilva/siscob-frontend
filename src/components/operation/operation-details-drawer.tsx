@@ -3,7 +3,11 @@
 import { AlertTriangle, CalendarClock, MessageSquareText } from "lucide-react";
 import { useState } from "react";
 
+import { InteractionDrawer, type InteractionFlow } from "@/components/interactions";
+import { buildInteractionPayload } from "@/components/interactions/interaction-api-mapper";
+import { NextActionCard } from "@/components/next-actions/next-action-card";
 import { Badge, Button, Card, CardContent, Drawer, EmptyState, LoadingState, Skeleton } from "@/components/ui";
+import { useCreateInteraction } from "@/hooks/useCreateInteraction";
 import { useOperationDetails } from "@/hooks/useOperations";
 import { ApiRequestError } from "@/services/api";
 
@@ -13,10 +17,22 @@ import { OperationTimeline } from "./operation-timeline";
 
 export function OperationDetailsDrawer({ operationId, onClose }: { operationId: string | null; onClose(): void }) {
   const query = useOperationDetails(operationId);
-  const [openActionId, setOpenActionId] = useState<string | null>(null);
+  const [interactionOpen, setInteractionOpen] = useState(false);
+  const [interactionSuccess, setInteractionSuccess] = useState<string | null>(null);
   const status = query.error instanceof ApiRequestError ? query.error.status : null;
   const details = query.data;
   const operation = details?.operation;
+  const interactionMutation = useCreateInteraction(Number(operation?.customerId ?? 0), operation?.id);
+
+  async function saveInteraction(flow: InteractionFlow) {
+    if (!operation) return;
+    await interactionMutation.mutateAsync({
+      ...buildInteractionPayload(flow, operation.receivableId ?? undefined),
+      operationId: operation.id,
+    });
+    setInteractionOpen(false);
+    setInteractionSuccess("Cobrança registrada com sucesso.");
+  }
 
   return (
     <Drawer className="sm:w-[760px]" contentClassName="pb-0" onClose={onClose} open={Boolean(operationId)} title="Operation">
@@ -46,17 +62,14 @@ export function OperationDetailsDrawer({ operationId, onClose }: { operationId: 
               </Block>
 
               <Block title="Próximas ações">
-                {details.nextActions.length ? <ul className="space-y-3">{details.nextActions.map((action) => (
-                  <li className="rounded-lg border border-slate-200 p-4" key={action.id}>
-                    <div className="flex flex-wrap items-start justify-between gap-3"><div><Badge>{action.status}</Badge><p className="mt-2 font-medium text-slate-950">{action.description}</p><p className="mt-1 text-xs text-slate-500">Vencimento: {formatOperationDate(action.dueAt)}</p></div><Button onClick={() => setOpenActionId((current) => current === action.id ? null : action.id)} variant="secondary">Abrir Next Action</Button></div>
-                    {openActionId === action.id ? <dl className="mt-3 grid gap-3 border-t border-slate-200 pt-3 sm:grid-cols-2"><Detail label="Tipo" value={action.type} /><Detail label="Título" value={action.title} /><Detail label="Criada em" value={formatOperationDate(action.createdAt)} /></dl> : null}
-                  </li>
-                ))}</ul> : <EmptyState description="Nenhuma próxima ação registrada." icon={CalendarClock} title="Sem próximas ações" />}
+                {details.nextActions.length ? <div className="space-y-3">{details.nextActions.map((action) => <NextActionCard action={{ ...action, customerId: operation.customerId }} key={action.id} operationId={operation.id} />)}</div> : <EmptyState description="Nenhuma próxima ação registrada." icon={CalendarClock} title="Sem próximas ações" />}
               </Block>
 
               <Block title="Timeline"><OperationTimeline items={details.timeline} operation={operation} /></Block>
 
               <Block title="Interactions">
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-3"><p className="text-sm text-slate-600">Registre um novo contato sem sair da Operation.</p><Button onClick={() => { setInteractionSuccess(null); setInteractionOpen(true); }}>Registrar cobrança</Button></div>
+                {interactionSuccess ? <p className="mb-4 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800" role="status">{interactionSuccess}</p> : null}
                 {details.interactions.length ? <ul className="space-y-3">{details.interactions.map((interaction) => <li className="rounded-lg border border-slate-200 p-4" key={interaction.id}><div className="flex flex-wrap justify-between gap-2"><Badge>{interaction.channel}</Badge><time className="text-xs text-slate-500" dateTime={interaction.createdAt}>{formatOperationDate(interaction.createdAt)}</time></div><p className="mt-2 text-sm text-slate-700">{interaction.notes}</p><p className="mt-1 text-xs text-slate-500">{interaction.outcome}</p></li>)}</ul> : <EmptyState description="Nenhuma interação registrada." icon={MessageSquareText} title="Sem interactions" />}
               </Block>
             </>
@@ -64,6 +77,7 @@ export function OperationDetailsDrawer({ operationId, onClose }: { operationId: 
         </div>
         {operation ? <footer className="sticky bottom-0 -mx-5 mt-6 border-t border-slate-200 bg-white px-5 py-4 sm:-mx-6 sm:px-6"><p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Workflow</p><OperationActions operation={operation} /></footer> : null}
       </div>
+      {operation && interactionOpen ? <InteractionDrawer customerId={Number(operation.customerId)} customerName={operation.customerId} operationContext={{ company: operation.companyId, portfolio: operation.portfolioId, receivable: operation.receivableId ?? undefined, objective: operation.objective }} onClose={() => setInteractionOpen(false)} onSave={saveInteraction} open /> : null}
     </Drawer>
   );
 }

@@ -2,12 +2,13 @@
 
 import { useQuery } from "@tanstack/react-query";
 
+import { sharedQueryKeys } from "@/lib/query-keys";
 import { getWorkQueue } from "@/services/work-queue.service";
 import type { WorkQueueFilters } from "@/types/work-queue";
 
 export const workQueueKeys = {
-  all: ["operations", "work-queue"] as const,
-  list: (filters: WorkQueueFilters) => ["operations", "work-queue", filters] as const,
+  all: sharedQueryKeys.operationQueue,
+  list: (filters: WorkQueueFilters) => [...sharedQueryKeys.operationQueue, filters] as const,
 };
 
 export function useOperationQueue(filters: WorkQueueFilters) {

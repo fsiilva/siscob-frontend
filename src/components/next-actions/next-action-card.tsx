@@ -1,7 +1,7 @@
 "use client";
 
 import { AlertTriangle, CalendarClock, Check, CircleX, FileText, Mail, MapPin, MonitorCog, Phone, ReceiptText, Save, Smartphone, X } from "lucide-react";
-import { useState, type ComponentType } from "react";
+import { useRef, useState, type ComponentType } from "react";
 
 import { Badge, Button, Card, CardContent, Input } from "@/components/ui";
 import type { BadgeVariant } from "@/components/ui";
@@ -22,21 +22,46 @@ const statusVariants: Record<NextActionApiStatus, BadgeVariant> = {
 };
 const dueFormatter = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" });
 
-export function NextActionCard({ action }: { action: NextActionApiResponse }) {
+type NextActionCardData = Pick<NextActionApiResponse, "id" | "customerId" | "type" | "status" | "title" | "description" | "dueAt" | "createdAt">;
+
+export function NextActionCard({ action, operationId }: { action: NextActionCardData; operationId?: string }) {
   const [editor, setEditor] = useState<"cancel" | "reschedule" | null>(null);
   const [reason, setReason] = useState("");
   const [dueAt, setDueAt] = useState(toDateTimeLocal(action.dueAt));
   const [description, setDescription] = useState(action.description);
-  const { completeMutation, cancelMutation, rescheduleMutation } = useNextActionMutations(Number(action.customerId));
+  const { completeMutation, cancelMutation, rescheduleMutation } = useNextActionMutations(Number(action.customerId), operationId);
+  const submissionLock = useRef(false);
+  const [success, setSuccess] = useState<string | null>(null);
   const Icon = actionIcons[action.type];
   const priority = getNextActionPriority(action);
   const active = isActiveNextAction(action.status);
   const error = completeMutation.error ?? cancelMutation.error ?? rescheduleMutation.error;
+  const isPending = completeMutation.isPending || cancelMutation.isPending || rescheduleMutation.isPending;
+
+  async function submitOnce(task: () => Promise<unknown>, message: string) {
+    if (submissionLock.current) return;
+    submissionLock.current = true;
+    setSuccess(null);
+    try {
+      await task();
+      setSuccess(message);
+    } finally {
+      submissionLock.current = false;
+    }
+  }
+
+  async function complete() {
+    try {
+      await submitOnce(() => completeMutation.mutateAsync(action.id), "Ação concluída com sucesso.");
+    } catch {
+      return;
+    }
+  }
 
   async function cancel() {
     if (!reason.trim()) return;
     try {
-      await cancelMutation.mutateAsync({ id: action.id, request: { reason: reason.trim() } });
+      await submitOnce(() => cancelMutation.mutateAsync({ id: action.id, request: { reason: reason.trim() } }), "Ação cancelada com sucesso.");
       setEditor(null);
     } catch {
       return;
@@ -46,13 +71,13 @@ export function NextActionCard({ action }: { action: NextActionApiResponse }) {
   async function reschedule() {
     if (!dueAt) return;
     try {
-      await rescheduleMutation.mutateAsync({
+      await submitOnce(() => rescheduleMutation.mutateAsync({
         id: action.id,
         request: {
           dueAt: new Date(dueAt).toISOString(),
           ...(description.trim() ? { description: description.trim() } : {}),
         },
-      });
+      }), "Ação reagendada com sucesso.");
       setEditor(null);
     } catch {
       return;
@@ -81,7 +106,7 @@ export function NextActionCard({ action }: { action: NextActionApiResponse }) {
           <div className="space-y-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
             <label className="block text-sm font-medium text-slate-700">Motivo do cancelamento<Input className="mt-1.5" maxLength={1000} onChange={(event) => setReason(event.target.value)} required value={reason} /></label>
             <div className="flex justify-end gap-2">
-              <Button onClick={() => setEditor(null)} variant="secondary"><X aria-hidden className="size-4" />Voltar</Button>
+              <Button disabled={isPending} onClick={() => setEditor(null)} variant="secondary"><X aria-hidden className="size-4" />Voltar</Button>
               <Button disabled={!reason.trim()} loading={cancelMutation.isPending} onClick={() => void cancel()}><CircleX aria-hidden className="size-4" />Confirmar cancelamento</Button>
             </div>
           </div>
@@ -92,18 +117,19 @@ export function NextActionCard({ action }: { action: NextActionApiResponse }) {
             <label className="block text-sm font-medium text-slate-700">Novo vencimento<Input className="mt-1.5" onChange={(event) => setDueAt(event.target.value)} required type="datetime-local" value={dueAt} /></label>
             <label className="block text-sm font-medium text-slate-700">Descrição<Input className="mt-1.5" onChange={(event) => setDescription(event.target.value)} value={description} /></label>
             <div className="flex justify-end gap-2">
-              <Button onClick={() => setEditor(null)} variant="secondary"><X aria-hidden className="size-4" />Voltar</Button>
+              <Button disabled={isPending} onClick={() => setEditor(null)} variant="secondary"><X aria-hidden className="size-4" />Voltar</Button>
               <Button disabled={!dueAt} loading={rescheduleMutation.isPending} onClick={() => void reschedule()}><Save aria-hidden className="size-4" />Reagendar</Button>
             </div>
           </div>
         ) : null}
 
         {error ? <p className="flex items-start gap-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800" role="alert"><AlertTriangle aria-hidden className="mt-0.5 size-4 shrink-0" />{getActionErrorMessage(error)}</p> : null}
+        {success ? <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800" role="status">{success}</p> : null}
         {!editor ? (
           <div className="flex flex-wrap justify-end gap-2">
-            <Button disabled={!active} loading={completeMutation.isPending} onClick={() => completeMutation.mutate(action.id)} variant="secondary"><Check aria-hidden className="size-4" />Concluir</Button>
-            <Button disabled={!active} onClick={() => setEditor("reschedule")} variant="secondary"><CalendarClock aria-hidden className="size-4" />Reagendar</Button>
-            <Button disabled={!active} onClick={() => setEditor("cancel")} variant="secondary"><CircleX aria-hidden className="size-4" />Cancelar</Button>
+            <Button disabled={!active || isPending} loading={completeMutation.isPending} onClick={() => void complete()} variant="secondary"><Check aria-hidden className="size-4" />Concluir</Button>
+            <Button disabled={!active || isPending} onClick={() => setEditor("reschedule")} variant="secondary"><CalendarClock aria-hidden className="size-4" />Reagendar</Button>
+            <Button disabled={!active || isPending} onClick={() => setEditor("cancel")} variant="secondary"><CircleX aria-hidden className="size-4" />Cancelar</Button>
           </div>
         ) : null}
       </CardContent>
@@ -115,10 +141,12 @@ function getActionErrorMessage(error: Error) {
   return getSafeApiErrorMessage(error, {
     defaultMessage: "Não foi possível atualizar a ação.",
     byStatus: {
+      400: "Revise os dados da ação e tente novamente.",
       401: "Sua sessão expirou. Entre novamente para continuar.",
       403: "Você não tem permissão para alterar esta ação.",
       404: "Esta ação não foi encontrada. Atualize a lista e tente novamente.",
       409: "A ação foi alterada e a lista está sendo atualizada.",
+      422: "Os dados informados para a ação não são válidos.",
     },
   });
 }
