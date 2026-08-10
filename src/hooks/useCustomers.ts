@@ -3,11 +3,15 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
 import { getCustomers } from "@/services/customers.service";
+import { sharedQueryKeys } from "@/lib/query-keys";
+import type { CustomersQuery } from "@/types/customers";
 
-export function useCustomers(search: string, enabled = true) {
+export const customersQueryKey = sharedQueryKeys.customerSearch;
+
+export function useCustomers(query: CustomersQuery, enabled = true) {
   return useQuery({
-    queryKey: ["sisloc", "customers", { search }],
-    queryFn: () => getCustomers(search),
+    queryKey: customersQueryKey(query),
+    queryFn: () => getCustomers(query),
     enabled,
     placeholderData: keepPreviousData,
     retry: 1,

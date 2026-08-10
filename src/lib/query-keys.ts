@@ -1,4 +1,5 @@
 export const sharedQueryKeys = {
+  customerSearch: (filters: { search: string; page: number; pageSize: number }) => ["customers", "search", filters] as const,
   customer: (customerId: number) => ["customers", customerId] as const,
   customerInteractions: (customerId: number) => ["customers", customerId, "interactions"] as const,
   customerNextActions: (customerId: number) => ["customers", customerId, "next-actions"] as const,

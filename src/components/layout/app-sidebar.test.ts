@@ -19,4 +19,11 @@ describe("AppSidebar authorization", () => {
     expect(canViewNavigationItem(undefined, "ADMIN")).toBe(true);
     expect(canViewNavigationItem(undefined, "USER")).toBe(true);
   });
+
+  it("shows Customers to ADMIN and USER", () => {
+    const source = readFileSync(fileURLToPath(new URL("./app-sidebar.tsx", import.meta.url)), "utf8");
+    expect(source).toContain('href: "/customers"');
+    expect(canViewNavigationItem(undefined, "ADMIN")).toBe(true);
+    expect(canViewNavigationItem(undefined, "USER")).toBe(true);
+  });
 });

@@ -32,7 +32,7 @@ const navigationItems: NavigationItem[] = [
   { label: "Produtividade", icon: CalendarDays, href: "/dashboard/productivity" },
   { label: "Carteira", icon: BriefcaseBusiness, href: "/receivables" },
   { label: "Minha Operação", icon: CircleDollarSign, href: "/operations" },
-  { label: "Clientes", icon: Users },
+  { label: "Clientes", icon: Users, href: "/customers" },
   { label: "Cobranças", icon: CircleDollarSign },
   { label: "Analytics", icon: BarChart3 },
   { label: "Administração — Carteiras", icon: ShieldCheck, href: "/administracao/carteiras" },

@@ -18,7 +18,7 @@ export function CreateOperationDrawer({ onClose, onCreated }: { onClose(): void;
   const { assignedCompanies, availableCompanies, selectedCompany } = useCompany();
   const [values, setValues] = useState<CreateOperationValues>(() => ({ ...initialCreateOperationValues, companyId: selectedCompany ? String(selectedCompany.id) : "" }));
   const [customerSearch, setCustomerSearch] = useState("");
-  const customersQuery = useCustomers(customerSearch);
+  const customersQuery = useCustomers({ search: customerSearch, page: 1, pageSize: 50 });
   const companiesQuery = useCompanies({ active: true });
   const portfoliosQuery = usePortfolios(values.companyId);
   const selectedCustomer = customersQuery.data?.data.find((customer) => String(customer.id) === values.customerId);

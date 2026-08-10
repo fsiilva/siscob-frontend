@@ -37,3 +37,9 @@ export interface CustomersResponse {
     totalPages: number;
   };
 }
+
+export interface CustomersQuery {
+  search: string;
+  page: number;
+  pageSize: number;
+}

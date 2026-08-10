@@ -1,4 +1,4 @@
-import type { Customer, CustomersResponse, CustomerSummary } from "@/types/customers";
+import type { Customer, CustomersQuery, CustomersResponse, CustomerSummary } from "@/types/customers";
 
 import { api } from "./api";
 
@@ -12,9 +12,9 @@ export async function getCustomerSummary(id: number): Promise<CustomerSummary> {
   return data;
 }
 
-export async function getCustomers(search: string): Promise<CustomersResponse> {
+export async function getCustomers(query: CustomersQuery): Promise<CustomersResponse> {
   const { data } = await api.get<CustomersResponse>("/sisloc/customers", {
-    params: { page: 1, pageSize: 50, ...(search.trim() ? { search: search.trim() } : {}) },
+    params: { page: query.page, pageSize: query.pageSize, ...(query.search.trim() ? { search: query.search.trim() } : {}) },
   });
   return data;
 }

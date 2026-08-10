@@ -21,7 +21,7 @@ describe("create Operation UI integration", () => {
   });
 
   it("usa seletores reais para empresa, Customer e Receivable", () => {
-    expect(drawer).toContain("useCustomers(customerSearch)");
+    expect(drawer).toContain("useCustomers({ search: customerSearch, page: 1, pageSize: 50 })");
     expect(drawer).toContain("useCompanies({ active: true })");
     expect(drawer.match(/useReceivables\(/g)).toHaveLength(1);
     expect(drawer).toContain("canLoadReceivables");
