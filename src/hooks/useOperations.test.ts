@@ -30,6 +30,14 @@ describe("Operation query orchestration", () => {
     expect(client.getQueryState(["dashboard", "overview"])?.isInvalidated).toBe(true);
   });
 
+  it("invalida Customer 360 após comando de uma Operation com cliente numérico", async () => {
+    const client = new QueryClient();
+    const numericCustomerOperation = { ...operation, customerId: "123" };
+    client.setQueryData(["customers", 123, "360"], {});
+    await refreshOperationQueries(client, numericCustomerOperation);
+    expect(client.getQueryState(["customers", 123, "360"])?.isInvalidated).toBe(true);
+  });
+
   it("refaz detalhe, lista e timeline em conflito sem repetir comando", async () => {
     const client = new QueryClient();
     client.setQueryData(operationQueryKeys.detail("op-1"), operation);

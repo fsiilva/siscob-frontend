@@ -14,7 +14,7 @@ describe("queries de Next Actions", () => {
     const queryClient = new QueryClient();
     const invalidate = vi.spyOn(queryClient, "invalidateQueries").mockResolvedValue(undefined);
     await invalidateNextActionQueries(queryClient, 123, "operation-1");
-    expect(invalidate).toHaveBeenCalledTimes(9);
+    expect(invalidate).toHaveBeenCalledTimes(10);
     expect(invalidate).toHaveBeenCalledWith({ exact: true, queryKey: nextActionQueryKeys.mine });
     expect(invalidate).toHaveBeenCalledWith({ exact: true, queryKey: nextActionQueryKeys.customer(123) });
     expect(invalidate).toHaveBeenCalledWith({ exact: true, queryKey: nextActionQueryKeys.customerDetails(123) });
@@ -24,6 +24,7 @@ describe("queries de Next Actions", () => {
     expect(invalidate).toHaveBeenCalledWith({ exact: true, queryKey: nextActionQueryKeys.operationTimeline("operation-1") });
     expect(invalidate).toHaveBeenCalledWith({ exact: true, queryKey: nextActionQueryKeys.dashboardOverview });
     expect(invalidate).toHaveBeenCalledWith({ exact: true, queryKey: nextActionQueryKeys.managementDashboard });
+    expect(invalidate).toHaveBeenCalledWith({ exact: true, queryKey: nextActionQueryKeys.customer360(123) });
   });
 
   it("refaz as listas em conflito 409", async () => {
@@ -31,7 +32,7 @@ describe("queries de Next Actions", () => {
     const invalidate = vi.spyOn(queryClient, "invalidateQueries").mockResolvedValue(undefined);
     const conflict = new ApiRequestError({ status: 409, message: "Conflict", url: "/next-actions/action-1" });
     await refreshNextActionsOnConflict(conflict, queryClient, 123, "operation-1");
-    expect(invalidate).toHaveBeenCalledTimes(9);
+    expect(invalidate).toHaveBeenCalledTimes(10);
   });
 
   it("não refaz listas por erros sem conflito", async () => {

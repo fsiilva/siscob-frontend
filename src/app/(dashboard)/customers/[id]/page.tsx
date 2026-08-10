@@ -1,6 +1,6 @@
-import { Customer360Page } from "@/components/customers/customer-360-page";
+import { Customer360Dashboard } from "@/components/customers/customer-360-dashboard";
 
 export default async function CustomerPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  return <Customer360Page customerId={Number(id)} />;
+  return <Customer360Dashboard customerId={Number(id)} />;
 }

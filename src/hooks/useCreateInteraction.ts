@@ -17,6 +17,7 @@ export const interactionQueryKeys = {
   operationTimeline: sharedQueryKeys.operationTimeline,
   dashboardOverview: sharedQueryKeys.dashboardOverview,
   managementDashboard: sharedQueryKeys.managementDashboard,
+  customer360: sharedQueryKeys.customer360,
 };
 
 export async function invalidateInteractionQueries(queryClient: QueryClient, customerId: number, operationId?: string) {
@@ -27,6 +28,7 @@ export async function invalidateInteractionQueries(queryClient: QueryClient, cus
     queryClient.invalidateQueries({ queryKey: interactionQueryKeys.operationQueue }),
     queryClient.invalidateQueries({ exact: true, queryKey: interactionQueryKeys.dashboardOverview }),
     queryClient.invalidateQueries({ exact: true, queryKey: interactionQueryKeys.managementDashboard }),
+    queryClient.invalidateQueries({ exact: true, queryKey: interactionQueryKeys.customer360(customerId) }),
   ];
   if (operationId) {
     invalidations.push(

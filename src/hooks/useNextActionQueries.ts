@@ -23,6 +23,7 @@ export const nextActionQueryKeys = {
   operationTimeline: sharedQueryKeys.operationTimeline,
   dashboardOverview: sharedQueryKeys.dashboardOverview,
   managementDashboard: sharedQueryKeys.managementDashboard,
+  customer360: sharedQueryKeys.customer360,
 };
 
 export function useMyNextActions() {
@@ -51,6 +52,7 @@ export async function invalidateNextActionQueries(queryClient: QueryClient, cust
     queryClient.invalidateQueries({ exact: true, queryKey: nextActionQueryKeys.customerTimeline(customerId) }),
     queryClient.invalidateQueries({ exact: true, queryKey: nextActionQueryKeys.dashboardOverview }),
     queryClient.invalidateQueries({ exact: true, queryKey: nextActionQueryKeys.managementDashboard }),
+    queryClient.invalidateQueries({ exact: true, queryKey: nextActionQueryKeys.customer360(customerId) }),
   ];
   if (operationId) invalidations.push(
     queryClient.invalidateQueries({ exact: true, queryKey: nextActionQueryKeys.operationDetails(operationId) }),

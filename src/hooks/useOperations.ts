@@ -45,14 +45,17 @@ export function useOperationTimeline(operationId: string | undefined, enabled = 
 
 export async function refreshOperationQueries(queryClient: QueryClient, operation: OperationResponse) {
   queryClient.setQueryData(operationQueryKeys.detail(operation.id), operation);
-  await Promise.all([
+  const invalidations = [
     queryClient.invalidateQueries({ queryKey: operationQueryKeys.lists() }),
     queryClient.invalidateQueries({ exact: true, queryKey: operationQueryKeys.details(operation.id) }),
     queryClient.invalidateQueries({ exact: true, queryKey: operationQueryKeys.timeline(operation.id) }),
     queryClient.invalidateQueries({ queryKey: sharedQueryKeys.operationQueue }),
     queryClient.invalidateQueries({ exact: true, queryKey: sharedQueryKeys.dashboardOverview }),
     queryClient.invalidateQueries({ exact: true, queryKey: sharedQueryKeys.managementDashboard }),
-  ]);
+  ];
+  const customerId = Number(operation.customerId);
+  if (Number.isInteger(customerId) && customerId > 0) invalidations.push(queryClient.invalidateQueries({ exact: true, queryKey: sharedQueryKeys.customer360(customerId) }));
+  await Promise.all(invalidations);
 }
 
 export async function refreshOperationAfterConflict(queryClient: QueryClient, operationId: string) {

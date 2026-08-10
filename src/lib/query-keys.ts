@@ -4,6 +4,7 @@ export const sharedQueryKeys = {
   customerNextActions: (customerId: number) => ["customers", customerId, "next-actions"] as const,
   customerSummary: (customerId: number) => ["customers", customerId, "summary"] as const,
   customerTimeline: (customerId: number) => ["customers", customerId, "timeline"] as const,
+  customer360: (customerId: number) => ["customers", customerId, "360"] as const,
   operationQueue: ["operations", "work-queue"] as const,
   operationDetails: (operationId: string) => ["operations", operationId, "details"] as const,
   operationTimeline: (operationId: string) => ["operations", operationId, "timeline"] as const,

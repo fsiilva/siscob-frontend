@@ -1,4 +1,5 @@
 import { Eye } from "lucide-react";
+import Link from "next/link";
 
 import {
   Badge,
@@ -66,9 +67,9 @@ export function ReceivablesTable({
             {data.map((receivable) => (
               <TableRow key={receivable.id}>
                 <TableCell>
-                  <p className="max-w-64 truncate font-semibold text-slate-900" title={receivable.customer.tradeName ?? receivable.customer.name}>
+                  <Link className="block max-w-64 truncate font-semibold text-blue-700 hover:underline" href={`/customers/${receivable.customer.id}`} title={receivable.customer.tradeName ?? receivable.customer.name}>
                     {receivable.customer.tradeName ?? receivable.customer.name}
-                  </p>
+                  </Link>
                   {receivable.customer.document ? (
                     <p className="mt-0.5 text-xs text-slate-500">{receivable.customer.document}</p>
                   ) : null}
