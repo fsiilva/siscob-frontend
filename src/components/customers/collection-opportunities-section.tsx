@@ -9,7 +9,7 @@ import { Badge, Button, Card, CardContent, EmptyState, LoadingState, Section, Sk
 import { useCollectionOpportunities } from "@/hooks/useCollectionOpportunities";
 import type { CollectionOpportunity } from "@/types/collection-opportunities";
 
-import { customer360Currency, formatCustomer360Date } from "./customer-360.presenter";
+import { customer360Currency, formatCustomer360Company, formatCustomer360Date } from "./customer-360.presenter";
 import { getCollectionOpportunitiesErrorMessage } from "./collection-opportunities.error";
 
 const number = new Intl.NumberFormat("pt-BR");
@@ -28,9 +28,9 @@ export function CollectionOpportunitiesSection({ customerId, customerName, onOpe
 }
 
 function OpportunityCard({ customerId, customerName, item, onCreate, onOpenOperation }: { customerId: number; customerName: string; item: CollectionOpportunity; onCreate(context: CreateOperationContext): void; onOpenOperation(id: string): void }) {
-  const context: CreateOperationContext = { customerId, customerName, companyId: item.company.id, companyName: item.company.name, receivableId: item.receivableId, suggestedPriority: item.suggestedPriority };
+  const context: CreateOperationContext = { customerId, customerName, companyId: item.company.id, companyName: formatCustomer360Company(item.company), receivableId: item.receivableId, suggestedPriority: item.suggestedPriority };
   return <Card><CardContent className="space-y-4">
-    <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs font-medium uppercase tracking-wide text-slate-500">Empresa</p><h3 className="mt-1 font-semibold text-slate-950">{item.company.name?.trim() || "Empresa não informada"}</h3></div><Badge variant={item.suggestedPriority === "HIGH" || item.suggestedPriority === "URGENT" ? "danger" : "open"}>{operationPriorityLabels[item.suggestedPriority]}</Badge></div>
+    <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs font-medium uppercase tracking-wide text-slate-500">Empresa</p><h3 className="mt-1 font-semibold text-slate-950">{formatCustomer360Company(item.company)}</h3></div><Badge variant={item.suggestedPriority === "HIGH" || item.suggestedPriority === "URGENT" ? "danger" : "open"}>{operationPriorityLabels[item.suggestedPriority]}</Badge></div>
     <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm sm:grid-cols-4"><OpportunityField label="Vencimento" value={formatCustomer360Date(item.dueDate)} /><OpportunityField label="Valor original" value={customer360Currency.format(item.amount)} /><OpportunityField label="Saldo em aberto" value={customer360Currency.format(item.balance)} /><OpportunityField label="Dias de atraso" value={number.format(item.daysOverdue)} /></dl>
     <div><p className="text-xs font-medium uppercase tracking-wide text-slate-500">Motivos</p><ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-700">{item.reasons.map((reason, index) => <li key={`${item.receivableId}-${index}`}>{reason}</li>)}</ul></div>
     <div className="flex justify-end">{item.hasActiveOperation ? item.activeOperationId ? <Button onClick={() => onOpenOperation(item.activeOperationId as string)} variant="secondary">Abrir Operation</Button> : <Badge>Operation ativa</Badge> : <Button onClick={() => onCreate(context)}>Criar Operation</Button>}</div>

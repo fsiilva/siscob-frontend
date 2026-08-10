@@ -21,7 +21,8 @@ describe("collection opportunities UI", () => {
     for (const text of ["query.isLoading", "query.isError", "query.refetch()", "Tentar novamente", "Nenhuma oportunidade de cobrança disponível para este cliente."]) expect(section).toContain(text);
   });
   it("renderiza os campos devolvidos pela API e fallback da empresa", () => {
-    for (const text of ["item.dueDate", "item.amount", "item.balance", "item.daysOverdue", "item.suggestedPriority", "item.reasons", "Empresa não informada"]) expect(section).toContain(text);
+    for (const text of ["item.dueDate", "item.amount", "item.balance", "item.daysOverdue", "item.suggestedPriority", "item.reasons", "formatCustomer360Company(item.company)"]) expect(section).toContain(text);
+    expect(section).not.toContain('item.company.name?.trim() || "Empresa não informada"');
   });
   it("reutiliza o drawer real com prefill e mantém carteira, objetivo e prioridade editáveis", () => {
     expect(section).toContain("<CreateOperationDrawer context={createContext}");
@@ -30,6 +31,8 @@ describe("collection opportunities UI", () => {
     expect(drawer).toContain("Objetivo operacional");
     expect(drawer).toContain("priority: context?.suggestedPriority");
     expect(drawer).toContain("disabled={Boolean(context)");
+    expect(section).toContain("companyId: item.company.id");
+    expect(section).toContain("<Button onClick={() => onCreate(context)}>Criar Operation</Button>");
   });
   it("trata Operation ativa sem inventar ID e abre o drawer existente", () => {
     expect(section).toContain("item.hasActiveOperation ? item.activeOperationId ?");

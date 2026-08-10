@@ -9,6 +9,8 @@ describe("customer 360 presenter", () => {
     expect(friendlyCustomerValue(null)).toBe("Não informado");
     expect(friendlyCustomerValue("  ")).toBe("Não informado");
   });
-  it("exibe o nome da empresa quando disponível", () => expect(formatCustomer360Company({ id: 4, name: "Empresa Fortaleza" })).toBe("Empresa Fortaleza"));
-  it("usa o identificador como fallback quando company.name é null", () => expect(formatCustomer360Company({ id: 4, name: null })).toBe("Empresa #4"));
+  it("exibe o nome preenchido da empresa", () => expect(formatCustomer360Company({ id: 14, name: "Empresa Fortaleza" })).toBe("Empresa Fortaleza"));
+  it.each([null, "", "   ", ".", "  .  "])("usa Empresa #14 quando company.name é %j", (name) => {
+    expect(formatCustomer360Company({ id: 14, name })).toBe("Empresa #14");
+  });
 });

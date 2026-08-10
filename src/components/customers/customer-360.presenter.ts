@@ -20,5 +20,6 @@ export function friendlyCustomerValue(value: string | null) {
 }
 
 export function formatCustomer360Company(company: Customer360Receivable["company"]) {
-  return company.name?.trim() || `Empresa #${company.id}`;
+  const name = company.name?.trim();
+  return name && name !== "." ? name : `Empresa #${company.id}`;
 }
