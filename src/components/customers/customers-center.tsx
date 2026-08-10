@@ -7,7 +7,7 @@ import { useState } from "react";
 import { Button, Card, EmptyState, Input, LoadingState, PageHeader, Pagination, Skeleton, Table, TableBody, TableCell, TableContainer, TableHead, TableHeader, TableRow } from "@/components/ui";
 import { useCustomers } from "@/hooks/useCustomers";
 import { getSafeApiErrorMessage } from "@/lib/api-error-message";
-import type { CustomersQuery } from "@/types/customers";
+import type { Customer, CustomersQuery } from "@/types/customers";
 
 import { customerDisplayName, customerDocument, customerEmail, customerPhone } from "./customers-center.presenter";
 
@@ -47,10 +47,19 @@ export function CustomersCenter() {
     {query.data?.data.length === 0 ? <EmptyState description="Revise a pesquisa e tente novamente." title="Nenhum cliente encontrado para os critérios informados." /> : null}
     {query.data?.data.length ? <div className="space-y-4">
       <p className="text-sm text-slate-600">{query.data.pagination.total.toLocaleString("pt-BR")} cliente(s) encontrado(s).</p>
-      <Card className={`overflow-hidden transition-opacity ${query.isFetching ? "opacity-60" : ""}`}><TableContainer><Table className="min-w-[880px]"><TableHeader><TableRow><TableHead>Cliente</TableHead><TableHead>Documento</TableHead><TableHead>Telefone</TableHead><TableHead>E-mail</TableHead><TableHead>Código/ID</TableHead><TableHead><span className="sr-only">Ações</span></TableHead></TableRow></TableHeader><TableBody>{query.data.data.map((customer) => <TableRow key={customer.id}><TableCell className="font-semibold text-slate-950">{customerDisplayName(customer)}</TableCell><TableCell>{customerDocument(customer)}</TableCell><TableCell>{customerPhone(customer)}</TableCell><TableCell>{customerEmail(customer)}</TableCell><TableCell>{customer.id}</TableCell><TableCell><Button onClick={() => router.push(`/customers/${customer.id}`)} variant="secondary">Ver cliente</Button></TableCell></TableRow>)}</TableBody></Table></TableContainer></Card>
+      <Card className={`overflow-hidden transition-opacity ${query.isFetching ? "opacity-60" : ""}`}><TableContainer><Table className="min-w-[760px] table-fixed"><TableHeader><TableRow><TableHead className="w-[22%]">Cliente</TableHead><TableHead className="w-44">Documento</TableHead><TableHead className="w-40">Telefone</TableHead><TableHead className="w-[28%]">E-mail</TableHead><TableHead className="w-24">Código/ID</TableHead><TableHead className="sticky right-0 w-36 bg-slate-50"><span className="sr-only">Ações</span></TableHead></TableRow></TableHeader><TableBody>{query.data.data.map((customer) => <CustomerRow customer={customer} key={customer.id} onOpen={() => router.push(`/customers/${customer.id}`)} />)}</TableBody></Table></TableContainer></Card>
       <Pagination onPageChange={(page) => setParams((current) => ({ ...current, page }))} page={query.data.pagination.page} totalPages={query.data.pagination.totalPages} />
     </div> : null}
   </div>;
+}
+
+function CustomerRow({ customer, onOpen }: { customer: Customer; onOpen(): void }) {
+  const name = customerDisplayName(customer);
+  const document = customerDocument(customer);
+  const phone = customerPhone(customer);
+  const email = customerEmail(customer);
+
+  return <TableRow><TableCell><div className="truncate font-semibold text-slate-950" title={name}>{name}</div></TableCell><TableCell><div className="truncate" title={document}>{document}</div></TableCell><TableCell><div className="truncate" title={phone}>{phone}</div></TableCell><TableCell><div className="truncate" title={email}>{email}</div></TableCell><TableCell className="whitespace-nowrap">{customer.id}</TableCell><TableCell className="sticky right-0 whitespace-nowrap bg-white"><Button onClick={onOpen} variant="secondary">Ver cliente</Button></TableCell></TableRow>;
 }
 
 export function getCustomersErrorMessage(error: unknown) {

@@ -26,4 +26,18 @@ describe("Customers Center", () => {
     expect(source).not.toContain("ADMIN");
     expect(source).not.toContain("USER");
   });
+  it("limita e-mail e mantém o valor completo acessível", () => {
+    expect(source).toContain('const email = customerEmail(customer)');
+    expect(source).toContain('className="truncate" title={email}>{email}');
+  });
+  it("limita nome, documento e telefone sem alterar seus presenters", () => {
+    expect(source).toContain('className="truncate font-semibold text-slate-950" title={name}');
+    expect(source).toContain('title={document}>{document}');
+    expect(source).toContain('title={phone}>{phone}');
+  });
+  it("usa layout fixo e mantém a ação visível à direita", () => {
+    expect(source).toContain('min-w-[760px] table-fixed');
+    expect(source).toContain('sticky right-0 whitespace-nowrap bg-white');
+    expect(source).toContain('Ver cliente');
+  });
 });
