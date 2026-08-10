@@ -62,7 +62,8 @@ export type OperationTimelineEventType =
   | "OperationCreated" | "OperationAssigned" | "OperationReleased"
   | "OperationTransferred" | "OperationStarted" | "OperationWaiting"
   | "OperationBlocked" | "OperationResumed" | "OperationCompleted"
-  | "OperationCancelled" | "OperationReopened" | "OperationPriorityChanged";
+  | "OperationCancelled" | "OperationReopened" | "OperationPriorityChanged"
+  | "OperationEvent";
 
 export interface OperationTimelineItem {
   id: string;

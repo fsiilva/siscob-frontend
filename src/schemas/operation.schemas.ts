@@ -38,6 +38,7 @@ export const operationTimelineEventTypeSchema = z.enum([
   "OperationCreated", "OperationAssigned", "OperationReleased", "OperationTransferred",
   "OperationStarted", "OperationWaiting", "OperationBlocked", "OperationResumed",
   "OperationCompleted", "OperationCancelled", "OperationReopened", "OperationPriorityChanged",
+  "OperationEvent",
 ]);
 
 export const operationTimelineResponseSchema = z.object({

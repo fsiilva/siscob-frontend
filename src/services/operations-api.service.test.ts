@@ -40,6 +40,25 @@ describe("operations-api.service", () => {
     await expect(getOperationDetails("op-1")).resolves.toEqual(response);
   });
 
+  it("aceita o contrato de details usado em produção com OperationEvent", async () => {
+    const response = {
+      operation: { ...operation, assignedOperator: null, completedReason: null, cancelledReason: null },
+      timeline: [
+        { id: "event-created", createdAt: "2026-08-01T12:00:00.000Z", type: "OperationCreated", actor: null, title: "Operação criada", description: "Operação registrada", metadata: { operationId: "op-1" } },
+        { id: "event-cancelled", createdAt: "2026-08-01T13:00:00.000Z", type: "OperationCancelled", actor: null, title: "Operação cancelada", description: "Cancelamento registrado", metadata: { operationId: "op-1" } },
+        { id: "event-interaction", createdAt: "2026-08-01T14:00:00.000Z", type: "OperationEvent", actor: null, title: "Operação atualizada", description: "Cobrança registrada", metadata: { channel: "phone", outcome: "promise_to_pay", operationId: "op-1" } },
+        { id: "event-next-action", createdAt: "2026-08-01T15:00:00.000Z", type: "OperationEvent", actor: null, title: "Operação atualizada", description: "Próxima ação atualizada", metadata: { type: "VERIFY_PAYMENT", status: "COMPLETED", dueAt: "2026-08-05T12:00:00.000Z", operationId: "op-1" } },
+      ],
+      nextActions: [{ id: "action-1", status: "COMPLETED", type: "VERIFY_PAYMENT", title: "Verificar pagamento", description: "Confirmar compensação", dueAt: "2026-08-05T12:00:00.000Z", createdAt: "2026-08-01T15:00:00.000Z" }],
+      interactions: [
+        { id: "interaction-1", channel: "phone", outcome: "no_answer", notes: "Primeira tentativa", createdAt: "2026-08-01T13:30:00.000Z" },
+        { id: "interaction-2", channel: "phone", outcome: "promise_to_pay", notes: "Cliente prometeu pagar", createdAt: "2026-08-01T14:00:00.000Z" },
+      ],
+    };
+    mock.onGet("/operations/op-1/details").reply(200, response);
+    await expect(getOperationDetails("op-1")).resolves.toEqual(response);
+  });
+
   it("cria pela API real com payload explícito e receivable opcional", async () => {
     const payload = { companyId: "1", portfolioId: "north", customerId: "123", objective: "Homologar cobrança", priority: "NORMAL" as const };
     mock.onPost("/operations", payload).reply(201, { ...operation, companyId: "1", portfolioId: "north", customerId: "123", objective: payload.objective });

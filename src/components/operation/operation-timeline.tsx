@@ -1,6 +1,6 @@
 "use client";
 
-import { Ban, CheckCircle2, CircleDot, Flag, UserRound, Workflow } from "lucide-react";
+import { Ban, CalendarClock, CheckCircle2, CircleDot, Flag, MessageSquareText, UserRound, Workflow } from "lucide-react";
 import type { ComponentType } from "react";
 
 import { Button, EmptyState, LoadingState, Skeleton } from "@/components/ui";
@@ -12,6 +12,7 @@ import { presentOperationTimelineItem, type OperationTimelineIcon } from "./oper
 const icons: Record<OperationTimelineIcon, ComponentType<{ className?: string; "aria-hidden"?: boolean }>> = {
   created: CircleDot, assigned: UserRound, status: Workflow,
   completed: CheckCircle2, cancelled: Ban, priority: Flag,
+  interaction: MessageSquareText, nextAction: CalendarClock,
 };
 
 export function OperationTimeline({ operation, items }: { operation: OperationResponse; items?: OperationTimelineItem[] }) {
@@ -31,6 +32,7 @@ export function OperationTimeline({ operation, items }: { operation: OperationRe
           <li className="relative pb-6 last:pb-0" key={event.id}>
             <span className="absolute -left-[2.45rem] rounded-full border border-blue-100 bg-blue-50 p-2 text-blue-700"><Icon aria-hidden className="size-4" /></span>
             <article className="rounded-lg border border-slate-200 bg-white p-4">
+              {event.relation ? <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-blue-700">{event.relation}</p> : null}
               <h4 className="font-semibold text-slate-950">{event.title}</h4>
               <p className="mt-1 text-sm text-slate-600">{event.description}</p>
               <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
