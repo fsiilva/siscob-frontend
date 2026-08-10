@@ -84,7 +84,20 @@ export function useOperationCommand(operationId: string) {
 
 export async function refreshAfterOperationCreation(queryClient: QueryClient, operation: OperationResponse) {
   queryClient.setQueryData(operationQueryKeys.detail(operation.id), operation);
-  await queryClient.invalidateQueries({ queryKey: operationQueryKeys.lists() });
+  const invalidations = [
+    queryClient.invalidateQueries({ queryKey: operationQueryKeys.lists() }),
+    queryClient.invalidateQueries({ queryKey: sharedQueryKeys.operationQueue }),
+    queryClient.invalidateQueries({ exact: true, queryKey: sharedQueryKeys.dashboardOverview }),
+    queryClient.invalidateQueries({ exact: true, queryKey: sharedQueryKeys.managementDashboard }),
+  ];
+  const customerId = Number(operation.customerId);
+  if (Number.isInteger(customerId) && customerId > 0) {
+    invalidations.push(
+      queryClient.invalidateQueries({ exact: true, queryKey: sharedQueryKeys.customer360(customerId) }),
+      queryClient.invalidateQueries({ exact: true, queryKey: sharedQueryKeys.collectionOpportunities(customerId) }),
+    );
+  }
+  await Promise.all(invalidations);
 }
 
 export function useCreateOperation() {

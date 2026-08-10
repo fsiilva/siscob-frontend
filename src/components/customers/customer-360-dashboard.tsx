@@ -14,6 +14,7 @@ import type { Customer360 } from "@/types/customer-360";
 
 import { customer360Currency, formatCustomer360Company, formatCustomer360Date, formatCustomer360DateTime, friendlyCustomerValue } from "./customer-360.presenter";
 import { getCustomer360ErrorMessage } from "./customer-360.error";
+import { CollectionOpportunitiesSection } from "./collection-opportunities-section";
 
 const number = new Intl.NumberFormat("pt-BR");
 
@@ -36,7 +37,7 @@ export function Customer360Dashboard({ customerId }: { customerId: number }) {
 }
 
 function Customer360Content({ data, onOpenOperation }: { data: Customer360; onOpenOperation(id: string): void }) {
-  return <><CustomerHeader data={data} /><FinancialSummary data={data} /><ReceivablesSection data={data} /><OperationsSection data={data} onOpen={onOpenOperation} /><NextActionsSection data={data} /><InteractionsSection data={data} /><CustomerTimelineSection data={data} /></>;
+  return <><CustomerHeader data={data} /><FinancialSummary data={data} /><ReceivablesSection data={data} /><CollectionOpportunitiesSection customerId={data.customer.id} customerName={data.customer.name} onOpenOperation={onOpenOperation} /><OperationsSection data={data} onOpen={onOpenOperation} /><NextActionsSection data={data} /><InteractionsSection data={data} /><CustomerTimelineSection data={data} /></>;
 }
 
 function CustomerHeader({ data }: { data: Customer360 }) {

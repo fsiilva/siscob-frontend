@@ -51,11 +51,14 @@ describe("Operation query orchestration", () => {
     expect(client.getQueryState(operationQueryKeys.details("op-1"))?.isInvalidated).toBe(true);
   });
 
-  it("insere o detalhe criado e invalida somente listas", async () => {
+  it("insere o detalhe criado e invalida listas, dashboards, fila, Customer 360 e oportunidades", async () => {
     const client = new QueryClient();
+    const numericOperation = { ...operation, customerId: "123" };
     client.setQueryData(operationQueryKeys.list(listParams), { items: [] });
-    await refreshAfterOperationCreation(client, operation);
-    expect(client.getQueryData(operationQueryKeys.detail("op-1"))).toBe(operation);
+    for (const key of [["operations", "work-queue"], ["dashboard", "overview"], ["dashboard", "management"], ["customers", 123, "360"], ["customers", 123, "collection-opportunities"]]) client.setQueryData(key, {});
+    await refreshAfterOperationCreation(client, numericOperation);
+    expect(client.getQueryData(operationQueryKeys.detail("op-1"))).toBe(numericOperation);
     expect(client.getQueryState(operationQueryKeys.list(listParams))?.isInvalidated).toBe(true);
+    for (const key of [["operations", "work-queue"], ["dashboard", "overview"], ["dashboard", "management"], ["customers", 123, "360"], ["customers", 123, "collection-opportunities"]]) expect(client.getQueryState(key)?.isInvalidated).toBe(true);
   });
 });
