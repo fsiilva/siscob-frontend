@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { customer360Currency, formatCustomer360Date, friendlyCustomerValue } from "./customer-360.presenter";
+import { customer360Currency, formatCustomer360Company, formatCustomer360Date, friendlyCustomerValue } from "./customer-360.presenter";
 
 describe("customer 360 presenter", () => {
   it("formata valores em BRL", () => expect(customer360Currency.format(1234.56)).toContain("1.234,56"));
@@ -9,4 +9,6 @@ describe("customer 360 presenter", () => {
     expect(friendlyCustomerValue(null)).toBe("Não informado");
     expect(friendlyCustomerValue("  ")).toBe("Não informado");
   });
+  it("exibe o nome da empresa quando disponível", () => expect(formatCustomer360Company({ id: 4, name: "Empresa Fortaleza" })).toBe("Empresa Fortaleza"));
+  it("usa o identificador como fallback quando company.name é null", () => expect(formatCustomer360Company({ id: 4, name: null })).toBe("Empresa #4"));
 });

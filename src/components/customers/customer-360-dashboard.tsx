@@ -12,7 +12,7 @@ import { useCustomer360 } from "@/hooks/useCustomer360";
 import { ApiRequestError } from "@/services/api";
 import type { Customer360 } from "@/types/customer-360";
 
-import { customer360Currency, formatCustomer360Date, formatCustomer360DateTime, friendlyCustomerValue } from "./customer-360.presenter";
+import { customer360Currency, formatCustomer360Company, formatCustomer360Date, formatCustomer360DateTime, friendlyCustomerValue } from "./customer-360.presenter";
 import { getCustomer360ErrorMessage } from "./customer-360.error";
 
 const number = new Intl.NumberFormat("pt-BR");
@@ -53,7 +53,7 @@ function FinancialSummary({ data }: { data: Customer360 }) {
 }
 
 function ReceivablesSection({ data }: { data: Customer360 }) {
-  return <Section title="Recebíveis">{data.receivables.length === 0 ? <SectionEmpty title="Cliente sem recebíveis" description="Nenhum título foi retornado para este cliente." /> : <Card className="overflow-hidden"><TableContainer><Table><TableHeader><TableRow><TableHead>Empresa</TableHead><TableHead>Vencimento</TableHead><TableHead>Valor</TableHead><TableHead>Saldo</TableHead><TableHead>Dias de atraso</TableHead><TableHead>Status</TableHead></TableRow></TableHeader><TableBody>{data.receivables.map((item) => <TableRow key={item.id}><TableCell>{item.company}</TableCell><TableCell>{formatCustomer360Date(item.dueDate)}</TableCell><TableCell>{customer360Currency.format(item.amount)}</TableCell><TableCell className="font-semibold">{customer360Currency.format(item.balance)}</TableCell><TableCell>{number.format(item.daysOverdue)}</TableCell><TableCell><Badge>{item.status}</Badge></TableCell></TableRow>)}</TableBody></Table></TableContainer></Card>}</Section>;
+  return <Section title="Recebíveis">{data.receivables.length === 0 ? <SectionEmpty title="Cliente sem recebíveis" description="Nenhum título foi retornado para este cliente." /> : <Card className="overflow-hidden"><TableContainer><Table><TableHeader><TableRow><TableHead>Empresa</TableHead><TableHead>Vencimento</TableHead><TableHead>Valor</TableHead><TableHead>Saldo</TableHead><TableHead>Dias de atraso</TableHead><TableHead>Status</TableHead></TableRow></TableHeader><TableBody>{data.receivables.map((item) => <TableRow key={item.id}><TableCell>{formatCustomer360Company(item.company)}</TableCell><TableCell>{formatCustomer360Date(item.dueDate)}</TableCell><TableCell>{customer360Currency.format(item.amount)}</TableCell><TableCell className="font-semibold">{customer360Currency.format(item.balance)}</TableCell><TableCell>{number.format(item.daysOverdue)}</TableCell><TableCell><Badge>{item.status}</Badge></TableCell></TableRow>)}</TableBody></Table></TableContainer></Card>}</Section>;
 }
 
 function OperationsSection({ data, onOpen }: { data: Customer360; onOpen(id: string): void }) {

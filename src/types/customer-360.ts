@@ -5,7 +5,7 @@ import type { TimelineApiEvent } from "./timeline-api";
 
 export interface Customer360Receivable {
   id: number;
-  company: string;
+  company: { id: number; name: string | null };
   dueDate: string;
   amount: number;
   balance: number;

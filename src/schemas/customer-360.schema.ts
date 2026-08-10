@@ -13,7 +13,7 @@ const timelineType = z.enum(["INTERACTION_CREATED", "NEXT_ACTION_CREATED", "NEXT
 export const customer360Schema = z.object({
   customer: z.object({ id: count, name: z.string().min(1), document: z.string().nullable(), phone: z.string().nullable(), email: z.string().nullable() }),
   financial: z.object({ totalOpen: money, totalOverdue: money, receivablesCount: count, overdueCount: count, oldestDueDate: z.string().nullable() }),
-  receivables: z.array(z.object({ id: count, company: z.string(), dueDate: z.string(), amount: money, balance: money, daysOverdue: count, status: z.string().min(1) })),
+  receivables: z.array(z.object({ id: count, company: z.object({ id: count, name: z.string().nullable() }), dueDate: z.string(), amount: money, balance: money, daysOverdue: count, status: z.string().min(1) })),
   operations: z.array(z.object({
     id: z.string(), status: operationStatusSchema, priority: operationPrioritySchema, objective: z.string(),
     company: z.string().optional(), portfolio: z.string().optional(), companyId: z.string().optional(), portfolioId: z.string().optional(), updatedAt: z.string(),

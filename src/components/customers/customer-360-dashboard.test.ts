@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { ZodError } from "zod";
 
 import { ApiRequestError } from "@/services/api";
 import { getCustomer360ErrorMessage } from "./customer-360.error";
@@ -35,4 +36,13 @@ describe("Customer 360 dashboard", () => {
     expect(message).not.toContain("stack trace");
   });
   it("trata falha de rede", () => expect(getCustomer360ErrorMessage(new Error("ECONNRESET"))).toContain("Erro de rede"));
+  it("trata ZodError como resposta inesperada sem expor detalhes técnicos", () => {
+    const message = getCustomer360ErrorMessage(new ZodError([]));
+    expect(message).toBe("Os dados recebidos do cliente possuem um formato inesperado. Tente novamente.");
+    expect(message).not.toContain("Zod");
+  });
+  it("renderiza a empresa por meio do presenter seguro", () => {
+    expect(source).toContain("formatCustomer360Company(item.company)");
+    expect(source).not.toContain("<TableCell>{item.company}</TableCell>");
+  });
 });

@@ -1,3 +1,5 @@
+import type { Customer360Receivable } from "@/types/customer-360";
+
 export const customer360Currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 const date = new Intl.DateTimeFormat("pt-BR", { timeZone: "UTC" });
 const dateTime = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" });
@@ -15,4 +17,8 @@ export function formatCustomer360DateTime(value: string) {
 
 export function friendlyCustomerValue(value: string | null) {
   return value?.trim() || "Não informado";
+}
+
+export function formatCustomer360Company(company: Customer360Receivable["company"]) {
+  return company.name?.trim() || `Empresa #${company.id}`;
 }
