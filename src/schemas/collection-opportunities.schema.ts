@@ -12,6 +12,7 @@ export const collectionOpportunitySchema = z.object({
   status: z.enum(["OPEN", "PAID", "CANCELED"]),
   hasActiveOperation: z.boolean(),
   activeOperationId: z.string().min(1).nullable(),
+  score: z.number().finite().nonnegative(),
   suggestedPriority: operationPrioritySchema,
   reasons: z.array(z.string().min(1)),
 });

@@ -35,6 +35,12 @@ describe("create Operation form", () => {
     expect(buildCreateOperationRequest({ ...valid, receivableId: "" })).not.toHaveProperty("receivableId");
   });
 
+  it.each(["HIGH", "URGENT"] as const)("preserva prioridade sugerida %s sem enviar score", (priority) => {
+    const request = buildCreateOperationRequest({ ...valid, priority });
+    expect(request).toMatchObject({ companyId: "1", receivableId: "456", priority });
+    expect(request).not.toHaveProperty("score");
+  });
+
   it("autoriza visualmente somente ADMIN", () => {
     expect(canCreateOperation(admin)).toBe(true);
     expect(canCreateOperation(operator)).toBe(false);

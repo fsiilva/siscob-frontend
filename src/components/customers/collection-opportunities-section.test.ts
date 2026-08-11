@@ -21,8 +21,16 @@ describe("collection opportunities UI", () => {
     for (const text of ["query.isLoading", "query.isError", "query.refetch()", "Tentar novamente", "Nenhuma oportunidade de cobrança disponível para este cliente."]) expect(section).toContain(text);
   });
   it("renderiza os campos devolvidos pela API e fallback da empresa", () => {
-    for (const text of ["item.dueDate", "item.amount", "item.balance", "item.daysOverdue", "item.suggestedPriority", "item.reasons", "formatCustomer360Company(item.company)"]) expect(section).toContain(text);
+    for (const text of ["item.dueDate", "item.amount", "item.balance", "item.daysOverdue", "item.score", "item.suggestedPriority", "item.reasons", "formatCustomer360Company(item.company)"]) expect(section).toContain(text);
     expect(section).not.toContain('item.company.name?.trim() || "Empresa não informada"');
+  });
+  it("exibe score explicativo, prioridade traduzida e reasons recebidas sem regras locais", () => {
+    expect(section).toContain("Score {number.format(item.score)}");
+    expect(section).toContain("operationPriorityLabels[item.suggestedPriority]");
+    expect(section).toContain("item.reasons.length ?");
+    expect(section).toContain("{reason}");
+    expect(section).not.toMatch(/sort\([^)]*score/);
+    expect(section).not.toMatch(/score\s*[+*/-]/);
   });
   it("reutiliza o drawer real com prefill e mantém carteira, objetivo e prioridade editáveis", () => {
     expect(section).toContain("<CreateOperationDrawer context={createContext}");

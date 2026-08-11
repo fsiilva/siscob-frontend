@@ -10,6 +10,7 @@ export interface CollectionOpportunity {
   status: "OPEN" | "PAID" | "CANCELED";
   hasActiveOperation: boolean;
   activeOperationId: string | null;
+  score: number;
   suggestedPriority: OperationPriority;
   reasons: string[];
 }
