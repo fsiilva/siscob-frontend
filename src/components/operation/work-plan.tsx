@@ -20,6 +20,7 @@ import { CreateOperationDrawer, type CreateOperationContext } from "./create-ope
 import { CollectionCadencePanel } from "./collection-cadence-panel";
 import { CollectionAlertsPanel } from "./collection-alerts-panel";
 import { OperationDetailsDrawer } from "./operation-details-drawer";
+import { OperatorSelect } from "./operator-select";
 import { operationPriorityLabels, operationStatusLabels } from "./operation-presenter";
 import { getWorkPlanErrorMessage } from "./work-plan.error";
 import { workPlanLabels } from "./work-plan.labels";
@@ -79,6 +80,7 @@ function WorkPlanFilterBar({ companiesQuery, filters, isAdmin, onChange }: { com
       <Filter label="Cliente"><Input inputMode="numeric" onChange={(event) => onChange("customerId", optional(event.target.value))} placeholder="ID do cliente" value={filters.customerId ?? ""} /></Filter>
       <Filter label="Prioridade"><Select onChange={(event) => onChange("priority", optional(event.target.value) as OperationPriority | undefined)} value={filters.priority ?? ""}><option value="">Todas</option>{Object.entries(operationPriorityLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</Select></Filter>
       <Filter label={workPlanLabels.operationStatus}><Select onChange={(event) => onChange("status", optional(event.target.value) as OperationStatus | undefined)} value={filters.status ?? ""}><option value="">Todos</option>{Object.entries(operationStatusLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</Select></Filter>
+      {isAdmin ? <Filter label="Operador"><OperatorSelect emptyLabel="Todos os operadores" onChange={(assignedOperatorId) => onChange("assignedOperatorId", assignedOperatorId)} value={filters.assignedOperatorId} /></Filter> : null}
     </div>
     {filters.status ? <p className="text-xs text-slate-500">O filtro de status aplica-se somente a Operations; oportunidades não participam desse filtro.</p> : null}
     <label className="inline-flex min-h-10 items-center gap-2 text-sm font-medium text-slate-700"><input checked={filters.overdueOnly ?? false} onChange={(event) => onChange("overdueOnly", event.target.checked || undefined)} type="checkbox" />Somente vencidos</label>

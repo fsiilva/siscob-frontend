@@ -10,6 +10,7 @@ import { useCreateInteraction } from "@/hooks/useCreateInteraction";
 import { useOperationQueue } from "@/hooks/useOperationQueue";
 import type { WorkQueueFilters, WorkQueueItem } from "@/types/work-queue";
 import { OperationDetailsDrawer } from "./operation-details-drawer";
+import { OperatorSelect } from "./operator-select";
 import { operationPriorityLabels, operationStatusLabels } from "./operation-presenter";
 import { filterWorkQueueGroup, type WorkQueueGroup } from "./work-queue.presenter";
 
@@ -49,7 +50,7 @@ export function WorkQueue() {
       <Input aria-label="Filtrar empresa" placeholder="Empresa" value={filters.company ?? ""} onChange={(e) => setFilters((x) => ({ ...x, page: 1, company: value(e.target.value) }))} />
       <Input aria-label="Filtrar carteira" placeholder="Carteira" value={filters.portfolio ?? ""} onChange={(e) => setFilters((x) => ({ ...x, page: 1, portfolio: value(e.target.value) }))} />
       <Input aria-label="Filtrar cliente" placeholder="Cliente" value={filters.customer ?? ""} onChange={(e) => setFilters((x) => ({ ...x, page: 1, customer: value(e.target.value) }))} />
-      {user?.role === "ADMIN" ? <Input aria-label="Filtrar operador" placeholder="UUID do operador" value={filters.assignedOperator ?? ""} onChange={(e) => setFilters((x) => ({ ...x, page: 1, assignedOperator: value(e.target.value) }))} /> : null}
+      {user?.role === "ADMIN" ? <OperatorSelect emptyLabel="Todos os operadores" onChange={(assignedOperatorId) => setFilters((current) => ({ ...current, page: 1, assignedOperatorId }))} value={filters.assignedOperatorId} /> : null}
     </div>
     {query.isLoading ? <LoadingState label="Carregando fila de trabalho"><Skeleton className="h-72" /></LoadingState> : null}
     {query.isError ? <EmptyState action={<Button onClick={() => void query.refetch()}>Tentar novamente</Button>} description="Verifique os filtros e tente novamente." icon={AlertTriangle} title="Não foi possível carregar a fila de trabalho" /> : null}

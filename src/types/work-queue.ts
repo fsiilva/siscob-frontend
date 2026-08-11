@@ -3,7 +3,7 @@ import type { OperationPriority, OperationStatus } from "./operations-api";
 export type WorkQueueNextActionStatus = "PENDING" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED" | "OVERDUE";
 export interface WorkQueueFilters {
   page: number; pageSize: number; status?: OperationStatus; priority?: OperationPriority;
-  company?: string; portfolio?: string; assignedOperator?: string; customer?: string;
+  company?: string; portfolio?: string; assignedOperatorId?: string; customer?: string;
   nextActionStatus?: WorkQueueNextActionStatus; overdueOnly?: boolean;
 }
 export interface WorkQueueItem {

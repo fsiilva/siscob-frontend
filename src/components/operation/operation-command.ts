@@ -37,8 +37,8 @@ export function operationErrorMessage(error: Error) {
   if (error.status === 400) return "Revise os campos informados e tente novamente.";
   if (error.status === 401) return "Sua sessão expirou. Entre novamente para continuar.";
   if (error.status === 403) return "Você não tem permissão para executar esta ação.";
-  if (error.status === 404) return "Esta Operation não foi encontrada.";
-  if (error.status === 409) return "Esta Operation foi alterada por outro usuário. Os dados estão sendo atualizados.";
-  if (error.status === 422) return "A ação não é válida para o estado atual ou os dados informados.";
-  return "Não foi possível atualizar a Operation.";
+  if (error.status === 404) return "A cobrança ou o operador não foi encontrado.";
+  if (error.status === 409) return "Esta cobrança foi alterada por outro usuário. Os dados estão sendo atualizados.";
+  if (error.status === 422) return "O operador não pode receber a cobrança ou a regra de negócio não permite esta ação.";
+  return "Não foi possível atualizar a cobrança.";
 }

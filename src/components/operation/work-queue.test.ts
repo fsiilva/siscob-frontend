@@ -27,4 +27,9 @@ describe("intelligent work queue UI", () => {
   it("contains filters, pagination and all async states", () => {
     for (const text of ["query.isLoading", "query.isError", "query.refetch()", "Tentar novamente", "Nenhuma cobrança pendente para os filtros selecionados.", "Pagination", "user?.role === \"ADMIN\""]) expect(source).toContain(text);
   });
+  it("usa o catálogo de operadores somente para ADMIN", () => {
+    expect(source).toContain('user?.role === "ADMIN" ? <OperatorSelect');
+    expect(source).toContain("assignedOperatorId");
+    expect(source).not.toContain("UUID do operador");
+  });
 });

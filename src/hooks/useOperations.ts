@@ -53,6 +53,7 @@ export async function refreshOperationQueries(queryClient: QueryClient, operatio
     queryClient.invalidateQueries({ queryKey: sharedQueryKeys.workPlan }),
     queryClient.invalidateQueries({ exact: true, queryKey: sharedQueryKeys.dashboardOverview }),
     queryClient.invalidateQueries({ exact: true, queryKey: sharedQueryKeys.managementDashboard }),
+    queryClient.invalidateQueries({ queryKey: sharedQueryKeys.collectionExceptionsDashboard }),
   ];
   const customerId = Number(operation.customerId);
   if (Number.isInteger(customerId) && customerId > 0) invalidations.push(queryClient.invalidateQueries({ exact: true, queryKey: sharedQueryKeys.customer360(customerId) }));
@@ -69,6 +70,7 @@ export async function refreshOperationAfterConflict(queryClient: QueryClient, op
     queryClient.invalidateQueries({ queryKey: sharedQueryKeys.workPlan }),
     queryClient.invalidateQueries({ exact: true, queryKey: sharedQueryKeys.dashboardOverview }),
     queryClient.invalidateQueries({ exact: true, queryKey: sharedQueryKeys.managementDashboard }),
+    queryClient.invalidateQueries({ queryKey: sharedQueryKeys.collectionExceptionsDashboard }),
   ]);
 }
 

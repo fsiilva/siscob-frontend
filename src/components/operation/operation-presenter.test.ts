@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { OperationResponse } from "@/types/operations-api";
 import type { TimelineApiEvent } from "@/types/timeline-api";
 
-import { getAvailableOperationActions, isOperationTimelineEvent } from "./operation-presenter";
+import { getAvailableOperationActions, getOperationCommandLabel, isOperationTimelineEvent } from "./operation-presenter";
 
 const baseOperation: OperationResponse = {
   id: "op-1", companyId: "c", portfolioId: "p", customerId: "customer", receivableId: null,
@@ -14,6 +14,10 @@ const baseOperation: OperationResponse = {
 };
 
 describe("operation presenter", () => {
+  it("diferencia atribuição administrativa de autoatribuição", () => {
+    expect(getOperationCommandLabel("assign", "ADMIN")).toBe("Atribuir cobrança");
+    expect(getOperationCommandLabel("assign", "USER")).toBe("Assumir cobrança");
+  });
   it("permite ao operador apenas comandos compatíveis sobre sua Operation", () => {
     expect(getAvailableOperationActions(baseOperation, { id: "user-1", role: "USER" })).toEqual(["release", "start"]);
     expect(getAvailableOperationActions(baseOperation, { id: "other", role: "USER" })).toEqual([]);

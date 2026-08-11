@@ -10,10 +10,14 @@ export const operationPriorityLabels: Record<OperationPriority, string> = {
   LOW: "Baixa", NORMAL: "Normal", HIGH: "Alta", URGENT: "Urgente",
 };
 export const operationCommandLabels: Record<OperationCommand, string> = {
-  assign: "Atribuir", release: "Liberar", transfer: "Transferir", start: "Iniciar", wait: "Aguardar",
+  assign: "Atribuir cobrança", release: "Liberar cobrança", transfer: "Transferir cobrança", start: "Iniciar", wait: "Aguardar",
   block: "Bloquear", resume: "Retomar", complete: "Concluir", cancel: "Cancelar", reopen: "Reabrir",
   changePriority: "Alterar prioridade",
 };
+
+export function getOperationCommandLabel(command: OperationCommand, role: UserRole) {
+  return command === "assign" && role === "USER" ? "Assumir cobrança" : operationCommandLabels[command];
+}
 
 const adminActions: Record<OperationStatus, OperationCommand[]> = {
   READY: ["assign", "cancel", "changePriority"],

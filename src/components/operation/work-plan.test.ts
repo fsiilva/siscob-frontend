@@ -47,7 +47,8 @@ describe("work plan UI", () => {
   it("usa o fallback compartilhado de empresa", () => expect(formatCustomer360Company({ id: "2", name: null })).toBe("Empresa #2"));
   it("oferece filtros reais, paginação e limita controles de ADMIN", () => {
     for (const text of ['onChange("kind"', 'onChange("companyId"', 'onChange("customerId"', 'onChange("priority"', 'onChange("status"', 'onChange("overdueOnly"', "Pagination", "isAdmin ? <Filter label=\"Tipo\""]) expect(source).toContain(text);
-    expect(source).not.toContain('onChange("assignedOperatorId"');
+    expect(source).toContain('onChange("assignedOperatorId"');
+    expect(source).toContain('isAdmin ? <Filter label="Operador"');
   });
   it("cobre loading, erro, retry e vazio", () => { for (const text of ["query.isLoading", "query.isError", "query.refetch()", "Tentar novamente", "Nenhuma cobrança disponível para os filtros selecionados."]) expect(source).toContain(text); });
   it.each([[400, "filtros"], [401, "sessão"], [403, "acesso"], [404, "não foi encontrado"], [409, "alterados"], [422, "regras"]])("trata HTTP %s", (status, message) => expect(getWorkPlanErrorMessage(new ApiRequestError({ status, message: "interno", url: "/x" }))).toContain(message));

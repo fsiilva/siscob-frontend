@@ -14,6 +14,9 @@ describe("Operation command payload", () => {
   });
 
   it("monta os contratos específicos sem campos técnicos extras", () => {
+    expect(buildOperationCommandPayload("assign", 7, values)).toEqual({ expectedVersion: 7, assignedOperatorId: "operator-2" });
+    expect(buildOperationCommandPayload("assign", 7, { ...values, assignedOperatorId: "" })).toEqual({ expectedVersion: 7 });
+    expect(buildOperationCommandPayload("release", 7, values)).toEqual({ expectedVersion: 7, reason: "motivo" });
     expect(buildOperationCommandPayload("transfer", 7, values)).toEqual({ expectedVersion: 7, assignedOperatorId: "operator-2", reason: "motivo" });
     expect(buildOperationCommandPayload("complete", 7, values)).toEqual({ expectedVersion: 7, result: "resultado" });
     expect(buildOperationCommandPayload("changePriority", 7, values)).toEqual({ expectedVersion: 7, priority: "HIGH", reason: "motivo" });
@@ -23,8 +26,8 @@ describe("Operation command payload", () => {
 
 describe("Operation errors", () => {
   it.each([
-    [400, "Revise os campos"], [401, "sessão expirou"], [403, "permissão"], [404, "não foi encontrada"],
-    [409, "alterada por outro usuário"], [422, "não é válida"],
+    [400, "Revise os campos"], [401, "sessão expirou"], [403, "permissão"], [404, "não foi encontrado"],
+    [409, "alterada por outro usuário"], [422, "regra de negócio"],
   ])("traduz HTTP %s sem expor mensagem técnica", (status, expected) => {
     const error = new ApiRequestError({ status, message: "stack trace interno", url: "/operations/op-1" });
     expect(operationErrorMessage(error)).toContain(expected);
