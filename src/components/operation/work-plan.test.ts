@@ -1,20 +1,35 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { ZodError } from "zod";
 
 import { formatCustomer360Company } from "@/components/customers/customer-360.presenter";
 import { ApiRequestError } from "@/services/api";
 import { getWorkPlanErrorMessage } from "./work-plan.error";
+import { workPlanLabels } from "./work-plan.labels";
 
 const source = readFileSync(fileURLToPath(new URL("./work-plan.tsx", import.meta.url)), "utf8");
 
 describe("work plan UI", () => {
   it("exibe os dois tipos, o primeiro item destacado e os dados da policy sem recalcular", () => {
-    for (const text of ["Operation ativa", "Oportunidade", "COBRAR AGORA", "item.score", "item.suggestedPriority", "item.reasons", "Prioridade persistida", "Next Action", "Operador responsável"]) expect(source).toContain(text);
+    for (const text of ["workPlanLabels.activeOperation", "Oportunidade", "COBRAR AGORA", "item.score", "item.suggestedPriority", "item.reasons", "workPlanLabels.definedPriority", "workPlanLabels.nextAction", "Operador responsável"]) expect(source).toContain(text);
     expect(source).toContain("featured={index === 0}");
     expect(source).not.toMatch(/\.sort\(/);
     expect(source).not.toMatch(/score\s*[+*/-]/);
+  });
+  it("renderiza a nomenclatura em português nos pontos visíveis da cobrança", () => {
+    const html = renderToStaticMarkup(createElement("section", null, workPlanLabels.activeOperation, `${workPlanLabels.definedPriority}: Alta`, workPlanLabels.receivable, workPlanLabels.nextAction, workPlanLabels.openOperation));
+    for (const text of ["Cobrança ativa", "Prioridade definida: Alta", "TÍTULO", "PRÓXIMA AÇÃO", "Abrir cobrança"]) expect(html).toContain(text);
+    for (const text of ["Operation ativa", "Prioridade persistida", "RECEIVABLE", "NEXT ACTION", "Abrir Operation"]) expect(html).not.toContain(text);
+  });
+  it("renderiza Status da cobrança sem alterar o valor técnico do filtro", () => {
+    const html = renderToStaticMarkup(createElement("label", null, workPlanLabels.operationStatus, createElement("select", null, createElement("option", { value: "OPERATION" }, workPlanLabels.operations), createElement("option", { value: "OPPORTUNITY" }, "Oportunidades"))));
+    expect(html).toContain("Status da cobrança");
+    expect(html).not.toContain("Status da Operation");
+    expect(html).toContain('value="OPERATION"');
+    expect(html).toContain('value="OPPORTUNITY"');
   });
   it("reutiliza drawers, preserva prefill e não envia score", () => {
     for (const text of ["OperationDetailsDrawer", "InteractionDrawer", "CreateOperationDrawer", "customerId: item.customer.id", "companyId: item.company.id", "receivableId: item.receivable.id", "suggestedPriority: item.suggestedPriority"]) expect(source).toContain(text);
