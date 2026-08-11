@@ -16,4 +16,5 @@ export const sharedQueryKeys = {
   managementDashboard: ["dashboard", "management"] as const,
   productivityDashboard: ["dashboard", "productivity"] as const,
   collectionPortfolioDashboard: ["dashboard", "collection-portfolio"] as const,
+  collectionExceptionsDashboard: ["dashboard", "collection-exceptions"] as const,
 };
