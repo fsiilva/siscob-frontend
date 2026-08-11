@@ -11,13 +11,14 @@ export const workPlanFixture = {
       operation: { id: "op-1", status: "IN_PROGRESS" as const, priority: "HIGH" as const, assignedOperator: null },
       nextAction: null, score: 180, suggestedPriority: "URGENT" as const,
       reasons: ["Recebível com mais de 90 dias de atraso", "Cliente possui alta exposição vencida"],
+      cadence: { status: "OVERDUE_FOLLOW_UP" as const, label: "Acompanhamento vencido", attention: "CRITICAL" as const, reasons: ["Próxima ação vencida há 3 dias"] },
     },
     {
       kind: "OPPORTUNITY" as const,
       customer: { id: "11", name: "Outro cliente" }, company: { id: "3", name: null },
       receivable: { id: "123", dueDate: "2026-08-01T00:00:00.000Z", balance: 1000, daysOverdue: 10 },
       operation: null,
-      nextAction: null, score: 0, suggestedPriority: "LOW" as const, reasons: [],
+      nextAction: null, score: 0, suggestedPriority: "LOW" as const, reasons: [], cadence: null,
     },
   ],
   page: 1, pageSize: 20, total: 2, totalPages: 1,
@@ -32,6 +33,10 @@ describe("work plan schema", () => {
   it("exige Operation para kind OPERATION e recebível para OPPORTUNITY", () => {
     expect(() => workPlanResponseSchema.parse({ ...workPlanFixture, items: [{ ...workPlanFixture.items[0], operation: null }] })).toThrow();
     expect(() => workPlanResponseSchema.parse({ ...workPlanFixture, items: [{ ...workPlanFixture.items[1], receivable: null }] })).toThrow();
+  });
+  it("exige cadence em OPERATION e null em OPPORTUNITY", () => {
+    expect(() => workPlanResponseSchema.parse({ ...workPlanFixture, items: [{ ...workPlanFixture.items[0], cadence: null }] })).toThrow();
+    expect(() => workPlanResponseSchema.parse({ ...workPlanFixture, items: [{ ...workPlanFixture.items[1], cadence: workPlanFixture.items[0].cadence }] })).toThrow();
   });
   it("rejeita campos desconhecidos no contrato estrito", () => expect(() => workPlanResponseSchema.parse({ ...workPlanFixture, unexpected: true })).toThrow());
 });

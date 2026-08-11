@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { collectionCadenceSchema } from "./collection-cadence.schema";
 
 export const operationStatusSchema = z.enum(["READY", "ASSIGNED", "IN_PROGRESS", "WAITING", "BLOCKED", "COMPLETED", "CANCELLED"]);
 export const operationPrioritySchema = z.enum(["LOW", "NORMAL", "HIGH", "URGENT"]);
@@ -64,6 +65,7 @@ const operationDetailsInteractionSchema = z.object({
 });
 
 export const operationDetailsResponseSchema = z.object({
+  cadence: collectionCadenceSchema,
   operation: operationResponseSchema.extend({
     assignedOperator: z.object({ id: z.string(), name: z.string() }).nullable(),
     completedReason: z.string().nullable(),

@@ -18,6 +18,8 @@ describe("work plan UI", () => {
     expect(source).toContain("featured={index === 0}");
     expect(source).not.toMatch(/\.sort\(/);
     expect(source).not.toMatch(/score\s*[+*/-]/);
+    expect(source).toContain("item.cadence ? <CollectionCadencePanel cadence={item.cadence}");
+    expect(source).not.toMatch(/sort\([^)]*cadence/);
   });
   it("renderiza a nomenclatura em português nos pontos visíveis da cobrança", () => {
     const html = renderToStaticMarkup(createElement("section", null, workPlanLabels.activeOperation, `${workPlanLabels.definedPriority}: Alta`, workPlanLabels.receivable, workPlanLabels.nextAction, workPlanLabels.openOperation));

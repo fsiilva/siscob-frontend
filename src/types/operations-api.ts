@@ -78,6 +78,7 @@ export interface OperationTimelineItem {
 export interface OperationTimelineResponse { items: OperationTimelineItem[] }
 
 export interface OperationDetailsResponse {
+  cadence: import("./collection-cadence").CollectionCadence;
   operation: OperationResponse & {
     assignedOperator: { id: string; name: string } | null;
     completedReason: string | null;

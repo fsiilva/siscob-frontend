@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { operationPrioritySchema, operationStatusSchema } from "./operation.schemas";
+import { collectionCadenceSchema } from "./collection-cadence.schema";
 
 const id = z.string().min(1);
 const namedEntity = z.object({ id, name: z.string().min(1) }).strict();
@@ -28,8 +29,8 @@ const common = {
 };
 
 export const workPlanItemSchema = z.discriminatedUnion("kind", [
-  z.object({ kind: z.literal("OPERATION"), ...common, receivable: receivable.nullable(), operation }).strict(),
-  z.object({ kind: z.literal("OPPORTUNITY"), ...common, receivable, operation: z.null() }).strict(),
+  z.object({ kind: z.literal("OPERATION"), ...common, receivable: receivable.nullable(), operation, cadence: collectionCadenceSchema }).strict(),
+  z.object({ kind: z.literal("OPPORTUNITY"), ...common, receivable, operation: z.null(), cadence: z.null() }).strict(),
 ]);
 
 export const workPlanResponseSchema = z.object({

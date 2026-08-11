@@ -12,6 +12,7 @@ import { useOperationDetails } from "@/hooks/useOperations";
 import { ApiRequestError } from "@/services/api";
 
 import { OperationActions } from "./operation-actions";
+import { CollectionCadencePanel } from "./collection-cadence-panel";
 import { formatOperationDate, operationPriorityLabels, operationStatusLabels } from "./operation-presenter";
 import { OperationTimeline } from "./operation-timeline";
 
@@ -60,6 +61,8 @@ export function OperationDetailsDrawer({ operationId, onClose }: { operationId: 
                   <Detail label="Completion" value={operation.completedReason ?? "—"} /><Detail label="Cancelamento" value={operation.cancelledReason ?? "—"} />
                 </dl>
               </Block>
+
+              <CollectionCadencePanel cadence={details.cadence} />
 
               <Block title="Próximas ações">
                 {details.nextActions.length ? <div className="space-y-3">{details.nextActions.map((action) => <NextActionCard action={{ ...action, customerId: operation.customerId }} key={action.id} operationId={operation.id} />)}</div> : <EmptyState description="Nenhuma próxima ação registrada." icon={CalendarClock} title="Sem próximas ações" />}

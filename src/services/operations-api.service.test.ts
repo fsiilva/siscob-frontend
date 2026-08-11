@@ -11,6 +11,7 @@ const operation = {
   statusChangedAt: "2026-07-30T12:00:00.000Z", startedAt: null, completedAt: null, cancelledAt: null,
   version: 3, createdAt: "2026-07-30T12:00:00.000Z", updatedAt: "2026-07-30T12:00:00.000Z",
 };
+const cadence = { status: "OVERDUE_FOLLOW_UP", label: "Acompanhamento vencido", attention: "CRITICAL", reasons: ["Próxima ação vencida há 3 dias"] };
 
 describe("operations-api.service", () => {
   const mock = new MockAdapter(api);
@@ -35,13 +36,19 @@ describe("operations-api.service", () => {
   });
 
   it("busca a composição completa da Operation", async () => {
-    const response = { operation: { ...operation, assignedOperator: null, completedReason: null, cancelledReason: null }, timeline: [], nextActions: [], interactions: [] };
+    const response = { cadence, operation: { ...operation, assignedOperator: null, completedReason: null, cancelledReason: null }, timeline: [], nextActions: [], interactions: [] };
     mock.onGet("/operations/op-1/details").reply(200, response);
     await expect(getOperationDetails("op-1")).resolves.toEqual(response);
   });
 
+  it("exige cadence no contrato de Operation Details", async () => {
+    mock.onGet("/operations/op-1/details").reply(200, { operation: { ...operation, assignedOperator: null, completedReason: null, cancelledReason: null }, timeline: [], nextActions: [], interactions: [] });
+    await expect(getOperationDetails("op-1")).rejects.toThrow();
+  });
+
   it("aceita o contrato de details usado em produção com OperationEvent", async () => {
     const response = {
+      cadence: { ...cadence, status: "COMPLETED", label: "Acompanhamento encerrado", attention: "OK", reasons: [] },
       operation: { ...operation, assignedOperator: null, completedReason: null, cancelledReason: null },
       timeline: [
         { id: "event-created", createdAt: "2026-08-01T12:00:00.000Z", type: "OperationCreated", actor: null, title: "Operação criada", description: "Operação registrada", metadata: { operationId: "op-1" } },

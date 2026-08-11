@@ -17,6 +17,7 @@ import type { OperationPriority, OperationStatus } from "@/types/operations-api"
 import type { WorkPlanFilters, WorkPlanItem, WorkPlanKind } from "@/types/work-plan";
 
 import { CreateOperationDrawer, type CreateOperationContext } from "./create-operation-drawer";
+import { CollectionCadencePanel } from "./collection-cadence-panel";
 import { OperationDetailsDrawer } from "./operation-details-drawer";
 import { operationPriorityLabels, operationStatusLabels } from "./operation-presenter";
 import { getWorkPlanErrorMessage } from "./work-plan.error";
@@ -91,6 +92,7 @@ function WorkPlanCard({ featured, isAdmin, item, onCreate, onInteraction, onOpen
     <div><Link className="font-semibold text-blue-700 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2" href={`/customers/${item.customer.id}`} prefetch={false}>{item.customer.name}</Link><p className="mt-1 text-sm text-slate-600">{formatCustomer360Company(item.company)}</p></div>
     <dl className="grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4"><Info label={workPlanLabels.receivable} value={item.receivable?.id ?? "Não vinculado"} /><Info label="Saldo" value={item.receivable ? currency.format(item.receivable.balance) : "—"} /><Info label="Vencimento" value={item.receivable ? formatCustomer360Date(item.receivable.dueDate) : "—"} /><Info label="Atraso" value={item.receivable ? `${number.format(item.receivable.daysOverdue)} dias` : "—"} />{item.operation ? <Info label="Operador responsável" value={item.operation.assignedOperator?.name ?? "Não atribuído"} /> : null}{item.operation ? <Info label={workPlanLabels.nextAction} value={item.nextAction ? `${item.nextAction.type} · ${formatCustomer360Date(item.nextAction.dueAt)}` : "Não definida"} /> : null}</dl>
     {item.reasons.length ? <div><p className="text-xs font-medium uppercase tracking-wide text-slate-500">Motivos</p><ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-700">{item.reasons.map((reason, index) => <li key={`${item.kind}-${index}`}>{reason}</li>)}</ul></div> : null}
+    {item.cadence ? <CollectionCadencePanel cadence={item.cadence} /> : null}
     <div className="flex flex-wrap justify-end gap-2">{item.operation ? <><Button onClick={() => onInteraction(item)} variant="secondary">Registrar cobrança</Button><Button onClick={() => onOpen(item.operation?.id ?? "")}>{workPlanLabels.openOperation}</Button></> : opportunityContext && isAdmin ? <Button onClick={() => onCreate(opportunityContext)}>Criar Operation</Button> : null}</div>
   </CardContent></Card>;
 }

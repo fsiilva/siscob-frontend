@@ -1,5 +1,6 @@
 import type { OperationPriority, OperationStatus } from "./operations-api";
 import type { NextActionApiStatus, NextActionApiType } from "./next-actions-api";
+import type { CollectionCadence } from "./collection-cadence";
 
 export type WorkPlanKind = "OPERATION" | "OPPORTUNITY";
 
@@ -15,22 +16,22 @@ export interface WorkPlanFilters {
   pageSize: number;
 }
 
-export interface WorkPlanItem {
-  kind: WorkPlanKind;
+interface WorkPlanItemBase {
   customer: { id: string; name: string };
   company: { id: string; name: string | null };
-  receivable: { id: string; dueDate: string; balance: number; daysOverdue: number } | null;
-  operation: {
-    id: string;
-    status: OperationStatus;
-    priority: OperationPriority;
-    assignedOperator: { id: string; name: string } | null;
-  } | null;
   nextAction: { id: string; type: NextActionApiType; status: NextActionApiStatus; dueAt: string } | null;
   score: number;
   suggestedPriority: OperationPriority;
   reasons: string[];
 }
+
+type WorkPlanReceivable = { id: string; dueDate: string; balance: number; daysOverdue: number };
+type WorkPlanOperation = { id: string; status: OperationStatus; priority: OperationPriority; assignedOperator: { id: string; name: string } | null };
+
+export type WorkPlanItem = WorkPlanItemBase & (
+  | { kind: "OPERATION"; receivable: WorkPlanReceivable | null; operation: WorkPlanOperation; cadence: CollectionCadence }
+  | { kind: "OPPORTUNITY"; receivable: WorkPlanReceivable; operation: null; cadence: null }
+);
 
 export interface WorkPlanResponse {
   items: WorkPlanItem[];

@@ -10,6 +10,12 @@ describe("OperationDetailsDrawer", () => {
     for (const field of ["Empresa", "Carteira", "Cliente", "Recebível", "Operador responsável", "Version", "Waiting", "Blocked", "Completion", "Cancelamento"]) expect(source).toContain(field);
   });
 
+  it("renderiza cadence já incluída em details sem nova requisição", () => {
+    expect(source).toContain("<CollectionCadencePanel cadence={details.cadence} />");
+    expect(source).not.toContain("useCadence");
+    expect(source).not.toContain("getCadence");
+  });
+
   it("reuses the actionable Next Action card with Operation context", () => {
     expect(source).toContain("NextActionCard");
     expect(source).toContain("customerId: operation.customerId");
