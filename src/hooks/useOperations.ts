@@ -50,6 +50,7 @@ export async function refreshOperationQueries(queryClient: QueryClient, operatio
     queryClient.invalidateQueries({ exact: true, queryKey: operationQueryKeys.details(operation.id) }),
     queryClient.invalidateQueries({ exact: true, queryKey: operationQueryKeys.timeline(operation.id) }),
     queryClient.invalidateQueries({ queryKey: sharedQueryKeys.operationQueue }),
+    queryClient.invalidateQueries({ queryKey: sharedQueryKeys.workPlan }),
     queryClient.invalidateQueries({ exact: true, queryKey: sharedQueryKeys.dashboardOverview }),
     queryClient.invalidateQueries({ exact: true, queryKey: sharedQueryKeys.managementDashboard }),
   ];
@@ -65,6 +66,7 @@ export async function refreshOperationAfterConflict(queryClient: QueryClient, op
     queryClient.invalidateQueries({ queryKey: operationQueryKeys.lists() }),
     queryClient.invalidateQueries({ exact: true, queryKey: operationQueryKeys.timeline(operationId) }),
     queryClient.invalidateQueries({ queryKey: sharedQueryKeys.operationQueue }),
+    queryClient.invalidateQueries({ queryKey: sharedQueryKeys.workPlan }),
     queryClient.invalidateQueries({ exact: true, queryKey: sharedQueryKeys.dashboardOverview }),
     queryClient.invalidateQueries({ exact: true, queryKey: sharedQueryKeys.managementDashboard }),
   ]);
@@ -87,8 +89,10 @@ export async function refreshAfterOperationCreation(queryClient: QueryClient, op
   const invalidations = [
     queryClient.invalidateQueries({ queryKey: operationQueryKeys.lists() }),
     queryClient.invalidateQueries({ queryKey: sharedQueryKeys.operationQueue }),
+    queryClient.invalidateQueries({ queryKey: sharedQueryKeys.workPlan }),
     queryClient.invalidateQueries({ exact: true, queryKey: sharedQueryKeys.dashboardOverview }),
     queryClient.invalidateQueries({ exact: true, queryKey: sharedQueryKeys.managementDashboard }),
+    queryClient.invalidateQueries({ queryKey: sharedQueryKeys.collectionPortfolioDashboard }),
   ];
   const customerId = Number(operation.customerId);
   if (Number.isInteger(customerId) && customerId > 0) {

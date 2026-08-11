@@ -33,6 +33,7 @@ const navigationItems: NavigationItem[] = [
   { label: "Produtividade", icon: CalendarDays, href: "/dashboard/productivity" },
   { label: "Carteira", icon: BriefcaseBusiness, href: "/receivables" },
   { label: "Minha Operação", icon: CircleDollarSign, href: "/operations" },
+  { label: "Plano de Trabalho", icon: BriefcaseBusiness, href: "/operations/work-plan" },
   { label: "Clientes", icon: Users, href: "/customers" },
   { label: "Cobranças", icon: CircleDollarSign },
   { label: "Analytics", icon: BarChart3 },
@@ -53,7 +54,7 @@ function Navigation({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?
   return (
     <nav aria-label="Navegação principal" className="flex-1 space-y-1 px-3 py-6">
       {navigationItems.filter((item) => canViewNavigationItem(item.adminOnly, user?.role)).map(({ label, icon: Icon, href }) => {
-        const active = href === "/dashboard" ? pathname === href : pathname.startsWith(href ?? "#");
+        const active = href === "/dashboard" || href === "/operations" ? pathname === href : pathname.startsWith(href ?? "#");
         const content = (
           <>
             <Icon aria-hidden="true" className="size-5 shrink-0" />

@@ -55,10 +55,12 @@ describe("Operation query orchestration", () => {
     const client = new QueryClient();
     const numericOperation = { ...operation, customerId: "123" };
     client.setQueryData(operationQueryKeys.list(listParams), { items: [] });
-    for (const key of [["operations", "work-queue"], ["dashboard", "overview"], ["dashboard", "management"], ["customers", 123, "360"], ["customers", 123, "collection-opportunities"]]) client.setQueryData(key, {});
+    for (const key of [["operations", "work-plan"], ["operations", "work-queue"], ["dashboard", "overview"], ["dashboard", "management"], ["dashboard", "collection-portfolio"], ["customers", 123, "360"], ["customers", 123, "collection-opportunities"]]) client.setQueryData(key, {});
+    client.setQueryData(["dashboard", "collection-portfolio", { companyId: "2" }], {});
     await refreshAfterOperationCreation(client, numericOperation);
     expect(client.getQueryData(operationQueryKeys.detail("op-1"))).toBe(numericOperation);
     expect(client.getQueryState(operationQueryKeys.list(listParams))?.isInvalidated).toBe(true);
-    for (const key of [["operations", "work-queue"], ["dashboard", "overview"], ["dashboard", "management"], ["customers", 123, "360"], ["customers", 123, "collection-opportunities"]]) expect(client.getQueryState(key)?.isInvalidated).toBe(true);
+    for (const key of [["operations", "work-plan"], ["operations", "work-queue"], ["dashboard", "overview"], ["dashboard", "management"], ["dashboard", "collection-portfolio"], ["customers", 123, "360"], ["customers", 123, "collection-opportunities"]]) expect(client.getQueryState(key)?.isInvalidated).toBe(true);
+    expect(client.getQueryState(["dashboard", "collection-portfolio", { companyId: "2" }])?.isInvalidated).toBe(true);
   });
 });

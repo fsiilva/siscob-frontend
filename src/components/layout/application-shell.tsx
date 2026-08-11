@@ -31,6 +31,8 @@ export function ApplicationShell({
       ? "Customer 360"
       : pathname.startsWith("/receivables")
         ? "Carteira de Recebíveis"
+        : pathname.startsWith("/operations/work-plan")
+          ? "Plano de Trabalho"
         : pathname.startsWith("/operations") || pathname.startsWith("/operation")
           ? "Minha Operação"
         : "Dashboard Executivo");

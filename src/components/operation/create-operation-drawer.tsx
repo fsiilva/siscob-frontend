@@ -15,11 +15,11 @@ import { buildCompanyOptions } from "../portfolios/build-company-options";
 import { buildCreateOperationRequest, changeCreateOperationCompany, changeCreateOperationCustomer, createOperationErrorMessage, initialCreateOperationValues, isCreateOperationValid, type CreateOperationValues } from "./create-operation-form";
 
 export interface CreateOperationContext {
-  customerId: number;
+  customerId: number | string;
   customerName: string;
-  companyId: number;
+  companyId: number | string;
   companyName: string | null;
-  receivableId: number;
+  receivableId: number | string;
   suggestedPriority: OperationPriority;
 }
 
@@ -51,7 +51,7 @@ export function CreateOperationDrawer({ context, onClose, onCreated }: { context
   const mutation = useCreateOperation();
   const companies = useMemo(
     () => buildCompanyOptions(
-      [...assignedCompanies, ...availableCompanies, ...(selectedCompany ? [selectedCompany] : []), ...(context ? [{ id: context.companyId, code: "", name: context.companyName ?? "Empresa não informada" }] : [])],
+      [...assignedCompanies, ...availableCompanies, ...(selectedCompany ? [selectedCompany] : []), ...(context ? [{ id: Number(context.companyId), code: "", name: context.companyName ?? `Empresa #${context.companyId}` }] : [])],
       companiesQuery.data?.data ?? [],
     ),
     [assignedCompanies, availableCompanies, companiesQuery.data, context, selectedCompany],

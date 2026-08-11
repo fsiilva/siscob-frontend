@@ -19,7 +19,7 @@ export function friendlyCustomerValue(value: string | null) {
   return value?.trim() || "Não informado";
 }
 
-export function formatCustomer360Company(company: Customer360Receivable["company"]) {
+export function formatCustomer360Company(company: Pick<Customer360Receivable["company"], "name"> & { id: number | string }) {
   const name = company.name?.trim();
   return name && name !== "." ? name : `Empresa #${company.id}`;
 }
