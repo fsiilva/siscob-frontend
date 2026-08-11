@@ -16,7 +16,7 @@ export interface CollectionPortfolioSummary {
 }
 
 export interface CollectionPortfolioAgingItem {
-  range: "NOT_DUE" | "DAYS_1_30" | "DAYS_31_60" | "DAYS_61_90" | "DAYS_91_180" | "DAYS_181_360" | "OVER_360";
+  range: "NOT_DUE" | "1_30" | "31_60" | "61_90" | "91_180" | "181_360" | "OVER_360";
   label: string;
   receivables: number;
   customers: number;
