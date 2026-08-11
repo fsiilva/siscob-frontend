@@ -63,6 +63,7 @@ export type OperationTimelineEventType =
   | "OperationTransferred" | "OperationStarted" | "OperationWaiting"
   | "OperationBlocked" | "OperationResumed" | "OperationCompleted"
   | "OperationCancelled" | "OperationReopened" | "OperationPriorityChanged"
+  | "PaymentPromiseCreated" | "PaymentPromiseFulfilled" | "PaymentPromiseBroken" | "PaymentPromiseCancelled"
   | "OperationEvent";
 
 export interface OperationTimelineItem {
@@ -92,6 +93,7 @@ export interface OperationDetailsResponse {
   interactions: Array<{
     id: string; channel: string; outcome: string; notes: string; createdAt: string;
   }>;
+  paymentPromises: import("./payment-promises").PaymentPromise[];
 }
 
 export type OperationCommand = "assign" | "release" | "transfer" | "start" | "wait" | "block" | "resume" | "complete" | "cancel" | "reopen" | "changePriority";

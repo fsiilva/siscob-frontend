@@ -8,6 +8,8 @@ const icons: Record<OperationTimelineEventType, OperationTimelineIcon> = {
   OperationTransferred: "assigned", OperationStarted: "status", OperationWaiting: "status",
   OperationBlocked: "status", OperationResumed: "status", OperationCompleted: "completed",
   OperationCancelled: "cancelled", OperationReopened: "status", OperationPriorityChanged: "priority",
+  PaymentPromiseCreated: "created", PaymentPromiseFulfilled: "completed",
+  PaymentPromiseBroken: "cancelled", PaymentPromiseCancelled: "cancelled",
   OperationEvent: "status",
 };
 

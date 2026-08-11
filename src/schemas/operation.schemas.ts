@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { collectionCadenceSchema } from "./collection-cadence.schema";
+import { paymentPromiseSchema } from "./payment-promises.schema";
 
 export const operationStatusSchema = z.enum(["READY", "ASSIGNED", "IN_PROGRESS", "WAITING", "BLOCKED", "COMPLETED", "CANCELLED"]);
 export const operationPrioritySchema = z.enum(["LOW", "NORMAL", "HIGH", "URGENT"]);
@@ -39,6 +40,7 @@ export const operationTimelineEventTypeSchema = z.enum([
   "OperationCreated", "OperationAssigned", "OperationReleased", "OperationTransferred",
   "OperationStarted", "OperationWaiting", "OperationBlocked", "OperationResumed",
   "OperationCompleted", "OperationCancelled", "OperationReopened", "OperationPriorityChanged",
+  "PaymentPromiseCreated", "PaymentPromiseFulfilled", "PaymentPromiseBroken", "PaymentPromiseCancelled",
   "OperationEvent",
 ]);
 
@@ -74,4 +76,5 @@ export const operationDetailsResponseSchema = z.object({
   timeline: operationTimelineResponseSchema.shape.items,
   nextActions: z.array(operationDetailsNextActionSchema),
   interactions: z.array(operationDetailsInteractionSchema),
+  paymentPromises: z.array(paymentPromiseSchema),
 });

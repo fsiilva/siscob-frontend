@@ -36,7 +36,7 @@ describe("operations-api.service", () => {
   });
 
   it("busca a composição completa da Operation", async () => {
-    const response = { cadence, operation: { ...operation, assignedOperator: null, completedReason: null, cancelledReason: null }, timeline: [], nextActions: [], interactions: [] };
+    const response = { cadence, operation: { ...operation, assignedOperator: null, completedReason: null, cancelledReason: null }, timeline: [], nextActions: [], interactions: [], paymentPromises: [] };
     mock.onGet("/operations/op-1/details").reply(200, response);
     await expect(getOperationDetails("op-1")).resolves.toEqual(response);
   });
@@ -61,6 +61,7 @@ describe("operations-api.service", () => {
         { id: "interaction-1", channel: "phone", outcome: "no_answer", notes: "Primeira tentativa", createdAt: "2026-08-01T13:30:00.000Z" },
         { id: "interaction-2", channel: "phone", outcome: "promise_to_pay", notes: "Cliente prometeu pagar", createdAt: "2026-08-01T14:00:00.000Z" },
       ],
+      paymentPromises: [],
     };
     mock.onGet("/operations/op-1/details").reply(200, response);
     await expect(getOperationDetails("op-1")).resolves.toEqual(response);

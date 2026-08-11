@@ -15,6 +15,7 @@ import { OperationActions } from "./operation-actions";
 import { CollectionCadencePanel } from "./collection-cadence-panel";
 import { formatOperationDate, operationPriorityLabels, operationStatusLabels } from "./operation-presenter";
 import { OperationTimeline } from "./operation-timeline";
+import { PaymentPromises } from "./payment-promises";
 
 export function OperationDetailsDrawer({ operationId, onClose }: { operationId: string | null; onClose(): void }) {
   const query = useOperationDetails(operationId);
@@ -67,6 +68,8 @@ export function OperationDetailsDrawer({ operationId, onClose }: { operationId: 
               <Block title="Próximas ações">
                 {details.nextActions.length ? <div className="space-y-3">{details.nextActions.map((action) => <NextActionCard action={{ ...action, customerId: operation.customerId }} key={action.id} operationId={operation.id} />)}</div> : <EmptyState description="Nenhuma próxima ação registrada." icon={CalendarClock} title="Sem próximas ações" />}
               </Block>
+
+              <PaymentPromises operation={operation} promises={details.paymentPromises} />
 
               <Block title="Timeline"><OperationTimeline items={details.timeline} operation={operation} /></Block>
 
