@@ -29,6 +29,7 @@ interface NavigationItem {
 const navigationItems: NavigationItem[] = [
   { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
   { label: "Dashboard Gerencial", icon: BarChart3, href: "/dashboard/management", adminOnly: true },
+  { label: "Carteira de Cobrança", icon: BriefcaseBusiness, href: "/dashboard/collection-portfolio", adminOnly: true },
   { label: "Produtividade", icon: CalendarDays, href: "/dashboard/productivity" },
   { label: "Carteira", icon: BriefcaseBusiness, href: "/receivables" },
   { label: "Minha Operação", icon: CircleDollarSign, href: "/operations" },
