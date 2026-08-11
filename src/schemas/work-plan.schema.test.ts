@@ -12,6 +12,11 @@ export const workPlanFixture = {
       nextAction: null, score: 180, suggestedPriority: "URGENT" as const,
       reasons: ["Recebível com mais de 90 dias de atraso", "Cliente possui alta exposição vencida"],
       cadence: { status: "OVERDUE_FOLLOW_UP" as const, label: "Acompanhamento vencido", attention: "CRITICAL" as const, reasons: ["Próxima ação vencida há 3 dias"] },
+      alerts: [
+        { type: "CRITICAL_WITHOUT_FOLLOW_UP" as const, severity: "CRITICAL" as const, label: "Crítico sem acompanhamento", reason: "Cobrança prioritária sem próxima ação definida" },
+        { type: "OVERDUE_FOLLOW_UP" as const, severity: "WARNING" as const, label: "Retorno vencido", reason: "Existe uma ação de acompanhamento vencida" },
+      ],
+      highestAlertSeverity: "CRITICAL" as const,
     },
     {
       kind: "OPPORTUNITY" as const,
@@ -19,6 +24,8 @@ export const workPlanFixture = {
       receivable: { id: "123", dueDate: "2026-08-01T00:00:00.000Z", balance: 1000, daysOverdue: 10 },
       operation: null,
       nextAction: null, score: 0, suggestedPriority: "LOW" as const, reasons: [], cadence: null,
+      alerts: [{ type: "HIGH_VALUE_WITHOUT_ACTIVE_COLLECTION" as const, severity: "INFO" as const, label: "Alto valor sem cobrança ativa", reason: "Título de alto valor disponível para cobrança" }],
+      highestAlertSeverity: "INFO" as const,
     },
   ],
   page: 1, pageSize: 20, total: 2, totalPages: 1,
@@ -37,6 +44,13 @@ describe("work plan schema", () => {
   it("exige cadence em OPERATION e null em OPPORTUNITY", () => {
     expect(() => workPlanResponseSchema.parse({ ...workPlanFixture, items: [{ ...workPlanFixture.items[0], cadence: null }] })).toThrow();
     expect(() => workPlanResponseSchema.parse({ ...workPlanFixture, items: [{ ...workPlanFixture.items[1], cadence: workPlanFixture.items[0].cadence }] })).toThrow();
+  });
+  it.each(["alerts", "highestAlertSeverity"])("exige %s em OPERATION e OPPORTUNITY", (field) => {
+    for (const sourceItem of workPlanFixture.items) {
+      const item: Record<string, unknown> = { ...sourceItem };
+      delete item[field];
+      expect(() => workPlanResponseSchema.parse({ ...workPlanFixture, items: [item] })).toThrow();
+    }
   });
   it("rejeita campos desconhecidos no contrato estrito", () => expect(() => workPlanResponseSchema.parse({ ...workPlanFixture, unexpected: true })).toThrow());
 });

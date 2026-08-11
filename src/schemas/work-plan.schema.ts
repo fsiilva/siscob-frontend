@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { operationPrioritySchema, operationStatusSchema } from "./operation.schemas";
 import { collectionCadenceSchema } from "./collection-cadence.schema";
+import { collectionAlertsSchema, collectionAlertSeveritySchema } from "./collection-alert.schema";
 
 const id = z.string().min(1);
 const namedEntity = z.object({ id, name: z.string().min(1) }).strict();
@@ -26,6 +27,8 @@ const common = {
   score: z.number().finite().nonnegative(),
   suggestedPriority: operationPrioritySchema,
   reasons: z.array(z.string()),
+  alerts: collectionAlertsSchema,
+  highestAlertSeverity: collectionAlertSeveritySchema,
 };
 
 export const workPlanItemSchema = z.discriminatedUnion("kind", [

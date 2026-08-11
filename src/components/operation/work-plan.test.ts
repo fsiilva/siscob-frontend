@@ -20,6 +20,9 @@ describe("work plan UI", () => {
     expect(source).not.toMatch(/score\s*[+*/-]/);
     expect(source).toContain("item.cadence ? <CollectionCadencePanel cadence={item.cadence}");
     expect(source).not.toMatch(/sort\([^)]*cadence/);
+    expect(source).toContain("<CollectionAlertsPanel alerts={item.alerts} highestSeverity={item.highestAlertSeverity} />");
+    expect(source).not.toMatch(/sort\([^)]*alerts/);
+    expect(source.indexOf("CollectionCadencePanel cadence={item.cadence}")).toBeLessThan(source.indexOf("CollectionAlertsPanel alerts={item.alerts}"));
   });
   it("renderiza a nomenclatura em português nos pontos visíveis da cobrança", () => {
     const html = renderToStaticMarkup(createElement("section", null, workPlanLabels.activeOperation, `${workPlanLabels.definedPriority}: Alta`, workPlanLabels.receivable, workPlanLabels.nextAction, workPlanLabels.openOperation));

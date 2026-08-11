@@ -1,6 +1,7 @@
 import type { OperationPriority, OperationStatus } from "./operations-api";
 import type { NextActionApiStatus, NextActionApiType } from "./next-actions-api";
 import type { CollectionCadence } from "./collection-cadence";
+import type { CollectionAlert, CollectionAlertSeverity } from "./collection-alert";
 
 export type WorkPlanKind = "OPERATION" | "OPPORTUNITY";
 
@@ -23,6 +24,8 @@ interface WorkPlanItemBase {
   score: number;
   suggestedPriority: OperationPriority;
   reasons: string[];
+  alerts: CollectionAlert[];
+  highestAlertSeverity: CollectionAlertSeverity;
 }
 
 type WorkPlanReceivable = { id: string; dueDate: string; balance: number; daysOverdue: number };
