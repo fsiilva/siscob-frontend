@@ -4,7 +4,7 @@ import { collectionExceptionsDashboardSchema } from "./collection-exceptions-das
 
 const alert = { type: "CRITICAL_WITHOUT_FOLLOW_UP" as const, severity: "CRITICAL" as const, label: "Crítico sem acompanhamento", reason: "Cobrança prioritária sem próxima ação definida" };
 export const collectionExceptionsFixture = {
-  summary: { totalExceptions: 2, critical: 1, warning: 0, informational: 1, criticalWithoutFollowUp: 1, overdueFollowUp: 0, dueToday: 0, highValueWithoutActiveCollection: 1 },
+  summary: { totalExceptions: 2, critical: 1, warning: 0, informational: 1, criticalWithoutFollowUp: 1, overdueFollowUp: 0, dueToday: 0, paymentPromiseDueToday: 0, overduePaymentPromise: 1, brokenPaymentPromise: 0, highValueWithoutActiveCollection: 1 },
   byCompany: [{ company: { id: "2", name: null }, total: 2, critical: 1, warning: 0, informational: 1 }],
   items: [
     { kind: "OPERATION" as const, customer: { id: "10", name: "Cliente" }, company: { id: "2", name: null }, operationId: "op-1", receivableId: null, score: 180, suggestedPriority: "URGENT" as const, cadence: { status: "OVERDUE_FOLLOW_UP" as const, label: "Acompanhamento vencido", attention: "CRITICAL" as const, reasons: ["Próxima ação vencida"] }, alerts: [alert, { ...alert, type: "DUE_TODAY" as const, severity: "INFO" as const, label: "Ação para hoje", reason: "Existe uma ação agendada para hoje" }], highestAlertSeverity: "CRITICAL" as const },

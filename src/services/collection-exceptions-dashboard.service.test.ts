@@ -18,4 +18,10 @@ describe("collection exceptions dashboard service", () => {
     expect(mock.history.get[0].params).toEqual(filters);
   });
   it("propaga ZodError para resposta inválida", async () => { mock.onGet("/dashboard/collection-exceptions").reply(200, { summary: {} }); await expect(getCollectionExceptionsDashboard({ page: 1, pageSize: 20 })).rejects.toMatchObject({ name: "ZodError" }); });
+  it.each(["PAYMENT_PROMISE_DUE_TODAY", "OVERDUE_PAYMENT_PROMISE", "BROKEN_PAYMENT_PROMISE"] as const)("envia o filtro %s sem alteração", async (alertType) => {
+    const filters: CollectionExceptionsFilters = { alertType, page: 1, pageSize: 20 };
+    mock.onGet("/dashboard/collection-exceptions", { params: filters }).reply(200, collectionExceptionsFixture);
+    await getCollectionExceptionsDashboard(filters);
+    expect(mock.history.get[0].params.alertType).toBe(alertType);
+  });
 });

@@ -19,6 +19,9 @@ export interface CollectionExceptionsSummary {
   criticalWithoutFollowUp: number;
   overdueFollowUp: number;
   dueToday: number;
+  paymentPromiseDueToday: number;
+  overduePaymentPromise: number;
+  brokenPaymentPromise: number;
   highValueWithoutActiveCollection: number;
 }
 

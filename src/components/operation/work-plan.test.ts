@@ -24,6 +24,12 @@ describe("work plan UI", () => {
     expect(source).not.toMatch(/sort\([^)]*alerts/);
     expect(source.indexOf("CollectionCadencePanel cadence={item.cadence}")).toBeLessThan(source.indexOf("CollectionAlertsPanel alerts={item.alerts}"));
   });
+  it("apresenta a promessa da API sem cálculo temporal nem reordenação", () => {
+    for (const text of ["item.paymentPromise ?", "Promessa de pagamento", "formatPaymentPromiseAmount(item.paymentPromise.promisedAmount)", "formatPaymentPromiseDate(item.paymentPromise.promisedDate)", "paymentPromiseStatusLabels[item.paymentPromise.status]"]) expect(source).toContain(text);
+    expect(source).not.toMatch(/paymentPromise[\s\S]*\.sort|\.sort\([^)]*paymentPromise/);
+    expect(source).not.toMatch(/promisedDate\s*[<>]=?\s*(new Date|Date\.now|today)/);
+    expect(source.indexOf("item.paymentPromise ?")).toBeLessThan(source.indexOf("CollectionAlertsPanel alerts={item.alerts}"));
+  });
   it("renderiza a nomenclatura em português nos pontos visíveis da cobrança", () => {
     const html = renderToStaticMarkup(createElement("section", null, workPlanLabels.activeOperation, `${workPlanLabels.definedPriority}: Alta`, workPlanLabels.receivable, workPlanLabels.nextAction, workPlanLabels.openOperation));
     for (const text of ["Cobrança ativa", "Prioridade definida: Alta", "TÍTULO", "PRÓXIMA AÇÃO", "Abrir cobrança"]) expect(html).toContain(text);

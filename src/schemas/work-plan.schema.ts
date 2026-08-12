@@ -3,6 +3,7 @@ import { z } from "zod";
 import { operationPrioritySchema, operationStatusSchema } from "./operation.schemas";
 import { collectionCadenceSchema } from "./collection-cadence.schema";
 import { collectionAlertsSchema, collectionAlertSeveritySchema } from "./collection-alert.schema";
+import { paymentPromiseDateSchema, paymentPromiseStatusSchema } from "./payment-promises.schema";
 
 const id = z.string().min(1);
 const namedEntity = z.object({ id, name: z.string().min(1) }).strict();
@@ -20,6 +21,13 @@ const nextAction = z.object({
   status: z.enum(["PENDING", "IN_PROGRESS", "COMPLETED", "CANCELLED", "OVERDUE"]),
   dueAt: z.string().min(1),
 }).strict();
+const paymentPromise = z.object({
+  id: z.string().uuid(),
+  promisedAmount: z.number().finite().positive(),
+  promisedDate: paymentPromiseDateSchema,
+  status: paymentPromiseStatusSchema,
+  version: z.number().int().nonnegative(),
+}).strict();
 const common = {
   customer: namedEntity,
   company,
@@ -32,8 +40,8 @@ const common = {
 };
 
 export const workPlanItemSchema = z.discriminatedUnion("kind", [
-  z.object({ kind: z.literal("OPERATION"), ...common, receivable: receivable.nullable(), operation, cadence: collectionCadenceSchema }).strict(),
-  z.object({ kind: z.literal("OPPORTUNITY"), ...common, receivable, operation: z.null(), cadence: z.null() }).strict(),
+  z.object({ kind: z.literal("OPERATION"), ...common, receivable: receivable.nullable(), operation, cadence: collectionCadenceSchema, paymentPromise: paymentPromise.nullable() }).strict(),
+  z.object({ kind: z.literal("OPPORTUNITY"), ...common, receivable, operation: z.null(), cadence: z.null(), paymentPromise: z.null() }).strict(),
 ]);
 
 export const workPlanResponseSchema = z.object({

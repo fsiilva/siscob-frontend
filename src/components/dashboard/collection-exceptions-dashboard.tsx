@@ -27,6 +27,9 @@ const alertTypeLabels: Record<CollectionAlertType, string> = {
   OVERDUE_FOLLOW_UP: "Acompanhamento vencido",
   DUE_TODAY: "Ação para hoje",
   HIGH_VALUE_WITHOUT_ACTIVE_COLLECTION: "Oportunidade relevante sem cobrança ativa",
+  PAYMENT_PROMISE_DUE_TODAY: "Promessa vence hoje",
+  OVERDUE_PAYMENT_PROMISE: "Promessa vencida",
+  BROKEN_PAYMENT_PROMISE: "Promessa quebrada",
 };
 
 export function CollectionExceptionsDashboard() {
@@ -66,12 +69,14 @@ function ExceptionFilters({ companiesQuery, filters, onChange }: { companiesQuer
 }
 
 function ExceptionsContent({ data, onOpenOperation, onPageChange }: { data: DashboardData; onOpenOperation(id: string): void; onPageChange(page: number): void }) {
-  const summaryCards = [
-    ["Total de exceções", data.summary.totalExceptions, BellRing], ["Críticas", data.summary.critical, CircleAlert], ["Atenção", data.summary.warning, TriangleAlert], ["Informativas", data.summary.informational, Info],
-    ["Críticas sem acompanhamento", data.summary.criticalWithoutFollowUp, CircleAlert], ["Acompanhamentos vencidos", data.summary.overdueFollowUp, TriangleAlert], ["Ações para hoje", data.summary.dueToday, BellRing], ["Oportunidades relevantes sem cobrança ativa", data.summary.highValueWithoutActiveCollection, Building2],
+  const summaryGroups = [
+    ["Severidade", [["Total de exceções", data.summary.totalExceptions, BellRing], ["Críticas", data.summary.critical, CircleAlert], ["Atenção", data.summary.warning, TriangleAlert], ["Informativas", data.summary.informational, Info]]],
+    ["Acompanhamento", [["Críticas sem acompanhamento", data.summary.criticalWithoutFollowUp, CircleAlert], ["Acompanhamentos vencidos", data.summary.overdueFollowUp, TriangleAlert], ["Ações para hoje", data.summary.dueToday, BellRing]]],
+    ["Promessas", [["Promessas para hoje", data.summary.paymentPromiseDueToday, BellRing], ["Promessas vencidas", data.summary.overduePaymentPromise, TriangleAlert], ["Promessas quebradas", data.summary.brokenPaymentPromise, CircleAlert]]],
+    ["Oportunidades", [["Oportunidades relevantes sem cobrança ativa", data.summary.highValueWithoutActiveCollection, Building2]]],
   ] as const;
   return <div className="space-y-8">
-    <section aria-label="Resumo das exceções" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{summaryCards.map(([label, value, Icon]) => <StatCard icon={Icon} key={label} label={label} value={number.format(value)} />)}</section>
+    <section aria-label="Resumo das exceções" className="space-y-6">{summaryGroups.map(([group, cards]) => <div key={group}><h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-600">{group}</h2><div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{cards.map(([label, value, Icon]) => <StatCard icon={Icon} key={label} label={label} value={number.format(value)} />)}</div></div>)}</section>
     <section aria-labelledby="exceptions-company-title"><h2 className="mb-3 text-lg font-semibold text-slate-950" id="exceptions-company-title">Exceções por empresa</h2>{data.byCompany.length ? <Card className="overflow-hidden"><TableContainer><Table className="min-w-[640px]"><TableHeader><TableRow><TableHead>Empresa</TableHead><TableHead>Total</TableHead><TableHead>Críticas</TableHead><TableHead>Atenção</TableHead><TableHead>Informativas</TableHead></TableRow></TableHeader><TableBody>{data.byCompany.map((item) => <TableRow key={item.company.id}><TableCell className="font-semibold text-slate-950">{formatCustomer360Company(item.company)}</TableCell><TableCell>{number.format(item.total)}</TableCell><TableCell>{number.format(item.critical)}</TableCell><TableCell>{number.format(item.warning)}</TableCell><TableCell>{number.format(item.informational)}</TableCell></TableRow>)}</TableBody></Table></TableContainer></Card> : <InlineEmpty text="Nenhuma empresa com exceções para exibir." />}</section>
     <section aria-labelledby="exceptions-list-title"><h2 className="mb-3 text-lg font-semibold text-slate-950" id="exceptions-list-title">Cobranças que exigem atenção</h2><div className="space-y-4">{data.items.map((item, index) => <ExceptionCard item={item} key={`${item.kind}-${item.operationId ?? item.receivableId ?? index}`} onOpenOperation={onOpenOperation} />)}</div></section>
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><p className="text-sm text-slate-600">{number.format(data.total)} item(ns) · página {number.format(data.page)}</p><Pagination onPageChange={onPageChange} page={data.page} totalPages={data.totalPages} /></div>

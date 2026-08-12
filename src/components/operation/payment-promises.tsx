@@ -5,13 +5,11 @@ import { Badge, Button, Drawer, EmptyState, Input } from "@/components/ui";
 import { useAuth } from "@/hooks/useAuth";
 import { useCreatePaymentPromise, useTransitionPaymentPromise } from "@/hooks/usePaymentPromises";
 import type { OperationResponse } from "@/types/operations-api";
-import type { PaymentPromise, PaymentPromiseCommand, PaymentPromiseStatus } from "@/types/payment-promises";
+import type { PaymentPromise, PaymentPromiseCommand } from "@/types/payment-promises";
 import { formatOperationDate, getAvailableOperationActions } from "./operation-presenter";
 import { paymentPromiseErrorMessage } from "./payment-promise.error";
+import { formatPaymentPromiseAmount, formatPaymentPromiseDate, paymentPromiseStatusLabels } from "./payment-promise.presenter";
 
-const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
-const date = new Intl.DateTimeFormat("pt-BR", { timeZone: "UTC" });
-const statusLabels: Record<PaymentPromiseStatus, string> = { PENDING: "Pendente", FULFILLED: "Cumprida", BROKEN: "Quebrada", CANCELLED: "Cancelada" };
 const commandLabels: Record<PaymentPromiseCommand, string> = { fulfill: "Marcar como cumprida", break: "Marcar como quebrada", cancel: "Cancelar promessa" };
 
 export function PaymentPromises({ operation, promises }: { operation: OperationResponse; promises: PaymentPromise[] }) {
@@ -30,8 +28,8 @@ function PaymentPromiseCard({ canAct, operationId, promise }: { canAct: boolean;
   const [command, setCommand] = useState<PaymentPromiseCommand | null>(null);
   async function confirm() { if (!command) return; try { await mutation.mutateAsync({ id: promise.id, command, expectedVersion: promise.version }); setCommand(null); } catch {} }
   return <article className="space-y-3 rounded-xl border border-slate-200 p-4">
-    <div className="flex flex-wrap items-center justify-between gap-2"><strong className="text-slate-950">{currency.format(promise.promisedAmount)}</strong><Badge variant={promise.status === "FULFILLED" ? "success" : promise.status === "BROKEN" ? "danger" : "open"}>{statusLabels[promise.status]}</Badge></div>
-    <dl className="grid gap-3 text-sm sm:grid-cols-2"><Item label="Data prometida" value={date.format(new Date(`${promise.promisedDate}T00:00:00Z`))} /><Item label="Recebível" value={promise.receivableId ?? "Não vinculado"} /><Item label="Registrada em" value={formatOperationDate(promise.createdAt)} />{promise.notes ? <Item label="Observação" value={promise.notes} /> : null}</dl>
+    <div className="flex flex-wrap items-center justify-between gap-2"><strong className="text-slate-950">{formatPaymentPromiseAmount(promise.promisedAmount)}</strong><Badge variant={promise.status === "FULFILLED" ? "success" : promise.status === "BROKEN" ? "danger" : "open"}>{paymentPromiseStatusLabels[promise.status]}</Badge></div>
+    <dl className="grid gap-3 text-sm sm:grid-cols-2"><Item label="Data prometida" value={formatPaymentPromiseDate(promise.promisedDate)} /><Item label="Recebível" value={promise.receivableId ?? "Não vinculado"} /><Item label="Registrada em" value={formatOperationDate(promise.createdAt)} />{promise.notes ? <Item label="Observação" value={promise.notes} /> : null}</dl>
     {promise.status === "PENDING" && canAct ? <div className="space-y-3"><div className="flex flex-wrap gap-2">{(Object.keys(commandLabels) as PaymentPromiseCommand[]).map((item) => <Button disabled={mutation.isPending} key={item} onClick={() => { mutation.reset(); setCommand(item); }} variant="secondary">{commandLabels[item]}</Button>)}</div>{command ? <div className="rounded-lg bg-slate-50 p-3"><p className="text-sm text-slate-700">Confirma esta ação: {commandLabels[command]}?</p><div className="mt-3 flex justify-end gap-2"><Button disabled={mutation.isPending} onClick={() => setCommand(null)} variant="secondary">Voltar</Button><Button loading={mutation.isPending} onClick={() => void confirm()}>Confirmar</Button></div></div> : null}</div> : null}
     {mutation.error ? <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800" role="alert">{paymentPromiseErrorMessage(mutation.error)}</p> : null}
   </article>;

@@ -2,6 +2,7 @@ import type { OperationPriority, OperationStatus } from "./operations-api";
 import type { NextActionApiStatus, NextActionApiType } from "./next-actions-api";
 import type { CollectionCadence } from "./collection-cadence";
 import type { CollectionAlert, CollectionAlertSeverity } from "./collection-alert";
+import type { PaymentPromiseStatus } from "./payment-promises";
 
 export type WorkPlanKind = "OPERATION" | "OPPORTUNITY";
 
@@ -31,9 +32,17 @@ interface WorkPlanItemBase {
 type WorkPlanReceivable = { id: string; dueDate: string; balance: number; daysOverdue: number };
 type WorkPlanOperation = { id: string; status: OperationStatus; priority: OperationPriority; assignedOperator: { id: string; name: string } | null };
 
+export interface WorkPlanPaymentPromise {
+  id: string;
+  promisedAmount: number;
+  promisedDate: string;
+  status: PaymentPromiseStatus;
+  version: number;
+}
+
 export type WorkPlanItem = WorkPlanItemBase & (
-  | { kind: "OPERATION"; receivable: WorkPlanReceivable | null; operation: WorkPlanOperation; cadence: CollectionCadence }
-  | { kind: "OPPORTUNITY"; receivable: WorkPlanReceivable; operation: null; cadence: null }
+  | { kind: "OPERATION"; receivable: WorkPlanReceivable | null; operation: WorkPlanOperation; cadence: CollectionCadence; paymentPromise: WorkPlanPaymentPromise | null }
+  | { kind: "OPPORTUNITY"; receivable: WorkPlanReceivable; operation: null; cadence: null; paymentPromise: null }
 );
 
 export interface WorkPlanResponse {

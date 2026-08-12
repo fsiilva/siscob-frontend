@@ -7,7 +7,7 @@ import { paymentPromiseErrorMessage } from "./payment-promise.error";
 const source = readFileSync(fileURLToPath(new URL("./payment-promises.tsx", import.meta.url)), "utf8");
 describe("payment promises UI", () => {
   it("exibe cards, BRL, datas, status traduzidos e vazio", () => {
-    for (const text of ["Promessas de pagamento", "Nenhuma promessa de pagamento registrada.", "currency.format", "date.format", "Pendente", "Cumprida", "Quebrada", "Cancelada", "Recebível", "Observação"]) expect(source).toContain(text);
+    for (const text of ["Promessas de pagamento", "Nenhuma promessa de pagamento registrada.", "formatPaymentPromiseAmount", "formatPaymentPromiseDate", "paymentPromiseStatusLabels", "Recebível", "Observação"]) expect(source).toContain(text);
   });
   it("mostra comandos somente para PENDING e usa a versão atual", () => {
     for (const text of ['promise.status === "PENDING"', "Marcar como cumprida", "Marcar como quebrada", "Cancelar promessa", "expectedVersion: promise.version", "mutation.isPending"]) expect(source).toContain(text);

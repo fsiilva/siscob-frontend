@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const paymentPromiseStatusSchema = z.enum(["PENDING", "FULFILLED", "BROKEN", "CANCELLED"]);
-const dateOnly = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine((value) => {
+export const paymentPromiseDateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine((value) => {
   const date = new Date(`${value}T00:00:00Z`);
   return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
 }, "Data inválida");
@@ -13,7 +13,7 @@ export const paymentPromiseSchema = z.object({
   operationId: z.string().uuid(),
   interactionId: z.string().uuid().nullable(),
   promisedAmount: z.number().finite().positive(),
-  promisedDate: dateOnly,
+  promisedDate: paymentPromiseDateSchema,
   status: paymentPromiseStatusSchema,
   notes: z.string().nullable(),
   createdByUserId: z.string().uuid(),
@@ -25,7 +25,7 @@ export const paymentPromiseSchema = z.object({
 export const createPaymentPromiseRequestSchema = z.object({
   receivableId: z.string().trim().min(1).max(64).optional(),
   promisedAmount: z.number().finite().positive().multipleOf(0.01),
-  promisedDate: dateOnly,
+  promisedDate: paymentPromiseDateSchema,
   notes: z.string().trim().max(1000).optional(),
 }).strict();
 
